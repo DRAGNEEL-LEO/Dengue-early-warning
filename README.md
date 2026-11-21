@@ -64,4 +64,6 @@ flagged Medium or above. The model tends to under-predict the largest peaks.
 
 ## Team
 
-_Add team name and members._
+Asad Uz Zaman (242002712)
+Junaid Siddique (242002212)
+Mohammad Fahim (242002112)
