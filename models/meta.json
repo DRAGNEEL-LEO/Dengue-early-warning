@@ -1,0 +1,36 @@
+{
+  "tiers": {
+    "Medium": 4.0,
+    "High": 10.0,
+    "Critical": 13.0
+  },
+  "metrics": {
+    "2w": {
+      "mae": 1.119,
+      "rmse": 2.225,
+      "baseline_mae": 3.135
+    },
+    "4w": {
+      "mae": 1.324,
+      "rmse": 2.538,
+      "baseline_mae": 3.143
+    }
+  },
+  "split_date": "2024-01-01",
+  "baseline": {
+    "population_density_sqkm": 42854.0,
+    "water_logging_risk_index": 0.5449999999999999,
+    "sanitation_score": 0.57,
+    "rain_lag_0w": 8.69,
+    "rain_lag_1w": 8.77,
+    "rain_lag_2w": 8.84,
+    "rain_lag_3w": 8.92,
+    "rain_lag_4w": 8.98,
+    "rain_sum_4w": 45.43500000000003,
+    "temp_mean_2w": 26.929999999999993,
+    "temp_mean_4w": 26.935000000000002,
+    "humidity_mean_2w": 68.17749999999998,
+    "humidity_mean_4w": 67.74875,
+    "month": 7.0
+  }
+}
