@@ -6,8 +6,7 @@ temperature and humidity plus ward vulnerability (density, water-logging risk, s
 
 EDU AI Engineering Hackathon 2026, preliminary round: "AI for Urban Dengue Outbreak".
 
-**Live demo:** _paste your Streamlit URL here_
-**Demo video:** _paste your video link here_
+**Live demo:** https://dengue-early-warning.streamlit.app/
 
 ## Run it locally (about 2 minutes)
 
@@ -57,7 +56,7 @@ flagged Medium or above. The model tends to under-predict the largest peaks.
 
 ## AI disclosure and external services
 
-- **AI assistants used:** Claude (Anthropic) for code, documentation and review. _Edit this list so it names every AI tool your team used._
+- **AI assistants used:** Claude (Anthropic) for code, documentation and review.
 - **External APIs at runtime:** none. No LLM or web API is called when the app runs.
 - **Other services:** Google Colab (development), GitHub (hosting), Streamlit Community Cloud (deployment, if used).
 - **Libraries:** streamlit, pandas, numpy, scikit-learn, joblib.
