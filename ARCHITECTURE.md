@@ -27,7 +27,7 @@ Dengue follows rain with a delay (egg-to-adult 7-14 days plus incubation), so th
 - Average temperature and humidity over the last 2 and 4 weeks.
 - Ward vulnerability: population density, water-logging risk index, sanitation score.
 - Month of year, so the model can learn the July-September season.
-- Dengue case counts are deliberately **not** used as inputs: a test without them scored the same, and
+- Dengue case counts are deliberately **not** used as inputs: a test without them scored about the same, and
   weather-only inputs mean the system works where case reports are late or missing.
 
 Targets are future cases (`shift(-2)` and `shift(-4)` within each ward).
@@ -47,15 +47,28 @@ Targets are future cases (`shift(-2)` and `shift(-4)` within each ward).
 
 ## 4. Model selection
 
-A `RandomForestRegressor` (100 trees, depth 12, min 5 samples per leaf) was chosen because it:
+Six algorithms were compared on the same features and the same chronological split (a development experiment,
+not part of the repo):
+
+| Model | 2-week MAE | 4-week MAE |
+|---|---|---|
+| Ridge (linear) | 1.53 | 1.92 |
+| Decision tree | 1.27 | 1.38 |
+| **Random forest (used)** | 1.12 | 1.32 |
+| Extra trees | 1.08 | 1.32 |
+| Gradient boosting | 1.08 | 1.39 |
+| Gradient boosting (Poisson) | 1.04 | 1.33 |
+
+Tree ensembles clearly beat the linear model and a single tree. Differences between the ensembles are small, and
+this is one split on one dataset, so none is a clear winner. We chose `RandomForestRegressor` (100 trees, depth 12,
+min 5 samples per leaf) because it:
 
 - captures non-linear and interacting effects (rain matters more in a poorly drained, crowded ward) without feature scaling;
 - copes with the many zero-case weeks outside the season;
-- gives an uncertainty range for free (spread across trees) and a fast, small serialized file (about 3 MB each);
+- gives an uncertainty range for free (spread across trees) and a small serialized file (about 3 MB each);
 - is simple to explain to public-health staff.
 
-It beats the guess-the-average baseline by a wide margin. Other model families (for example gradient boosting)
-have not been benchmarked yet and are planned for the onsite round.
+Extra trees and Poisson gradient boosting are candidates to revisit for the onsite round.
 
 ## 5. Compute and API cost controls
 
@@ -65,7 +78,7 @@ have not been benchmarked yet and are planned for the onsite round.
 - **Batching:** the all-ward ranking is one model call on 60 rows; driver impacts are one call on 15 rows.
 - **No external calls at runtime:** no weather API, no LLM, so zero token cost and no rate limits. When live weather
   is added, plan: one fetch per day, cached on disk, and reuse of the same feature pipeline.
-- **Training only when needed:** about 20 seconds on a laptop; the app retrains automatically only if saved models
+- **Training only when needed:** under a minute on a laptop; the app retrains automatically only if saved models
   are missing or incompatible.
 
 ## 6. Known limitations
@@ -73,5 +86,11 @@ have not been benchmarked yet and are planned for the onsite round.
 - Peaks are under-predicted: exact tier is right 85% / 83% of the time, and the worst weeks are often labelled
   Medium instead of Critical. All High and Critical test weeks were still flagged Medium or above, so Medium is a
   sensible early-warning trigger.
+- Dates inside the dataset are a replay: the model sees only data up to the chosen week. Weeks before 2024 were
+  training data, so only 2024 onward is a fair test. The newest week is a genuine forecast.
+- The rainfall scenario slider rescales recent rain. The forest responds in steps, not smoothly, so treat it as a
+  scenario, not a forecast.
 - Driver bars are an approximation (each input swapped for its typical value), not exact causal effects.
 - Input is the supplied historical weekly dataset; live weather ingestion is future work.
+- Results come from one dataset and one chronological split. They show the method works on this data, not that it
+  is validated on real outbreaks.
