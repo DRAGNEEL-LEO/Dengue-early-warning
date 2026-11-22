@@ -21,12 +21,12 @@ HORIZON_NAME = {"2w": "2 weeks", "4w": "4 weeks"}
 st.markdown("""
 <style>
 .block-container {padding-top: 1.5rem;}
-.banner {background:#0f3d3a;color:#ffffff;padding:20px 26px;border-radius:10px;margin-bottom:14px;}
+.banner {background:#0f3d3a;border:1px solid #1f6f69;color:#ffffff;padding:20px 26px;border-radius:10px;margin-bottom:14px;}
 .banner h1 {color:#ffffff;margin:0;font-size:1.9rem;}
 .banner p {color:#cfe7e4;margin:6px 0 0 0;font-size:1rem;}
-.kpi {border-left:6px solid #999;background:#f6f8f8;padding:10px 14px;border-radius:6px;}
-.kpi .l {font-size:0.85rem;color:#51606b;}
-.kpi .n {font-size:1.8rem;font-weight:700;color:#12212b;line-height:1.2;}
+.kpi {border-left:6px solid #999;background:#1b2330;padding:10px 14px;border-radius:6px;}
+.kpi .l {font-size:0.85rem;color:#9fb0bf;}
+.kpi .n {font-size:1.8rem;font-weight:700;color:#f1f5f9;line-height:1.2;}
 .tier {padding:14px;border-radius:10px;text-align:center;font-size:2rem;font-weight:700;margin:6px 0 10px 0;}
 </style>
 """, unsafe_allow_html=True)
@@ -148,7 +148,7 @@ with tab1:
         imp = driver_impacts(models[horizon], row, meta["baseline"]).rename(LABELS)
         order = imp.abs().sort_values(ascending=False).index[:3]
         st.markdown("Top drivers: " + ", ".join(f"**{n}** ({imp[n]:+.1f})" for n in order))
-        st.bar_chart(imp.sort_values(), horizontal=True, height=420, color="#0f766e")
+        st.bar_chart(imp.sort_values(), horizontal=True, height=420, color="#2dd4bf")
         st.caption("Bars show how much each input raises (+) or lowers (−) predicted cases compared with a "
                    "typical week and ward. Impact is approximate.")
 
@@ -157,11 +157,11 @@ with tab1:
         hist = df[(df["ward_id"] == ward) & (df["date"] <= pd.Timestamp(date_str))].tail(12).set_index("date")
         c1, c2, c3 = st.columns(3)
         c1.caption("Rainfall (mm per week)")
-        c1.bar_chart(hist["rainfall_mm"], height=200, color="#1e88e5")
+        c1.bar_chart(hist["rainfall_mm"], height=200, color="#64b5f6")
         c2.caption("Average temperature (°C)")
-        c2.line_chart(hist["avg_temp_c"], height=200, color="#ef6c00")
+        c2.line_chart(hist["avg_temp_c"], height=200, color="#ffb74d")
         c3.caption("Relative humidity (%)")
-        c3.line_chart(hist["relative_humidity_pct"], height=200, color="#6a1b9a")
+        c3.line_chart(hist["relative_humidity_pct"], height=200, color="#ce93d8")
 
 # ================= Tab 2: all wards =================
 with tab2:
@@ -201,5 +201,5 @@ with tab3:
     w["Predicted"] = models[horizon].predict(w[FEATURES])
     w["Actual"] = w[target]
     w = w.set_index(w["date"] + pd.Timedelta(weeks=int(horizon[0])))
-    st.line_chart(w[["Actual", "Predicted"]], height=300, color=["#12212b", "#ef6c00"])
+    st.line_chart(w[["Actual", "Predicted"]], height=300, color=["#e2e8f0", "#ffb74d"])
     st.caption("The model follows the seasonal pattern well but tends to under-predict the highest peaks.")
