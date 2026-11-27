@@ -1,0 +1,58 @@
+{
+  "week": "2024-08-12",
+  "horizon": "4w",
+  "stock_pct": 60,
+  "total_crews": 40,
+  "supply_summary": [
+    {
+      "resource": "saline_bags_needed",
+      "required": 1522,
+      "available_stock": 913,
+      "allocated": 913,
+      "deficit": 609,
+      "wards_short": 60
+    },
+    {
+      "resource": "diagnostic_kits_needed",
+      "required": 741,
+      "available_stock": 444,
+      "allocated": 444,
+      "deficit": 297,
+      "wards_short": 59
+    },
+    {
+      "resource": "hospital_beds_required",
+      "required": 188,
+      "available_stock": 112,
+      "allocated": 112,
+      "deficit": 76,
+      "wards_short": 55
+    }
+  ],
+  "crews": {
+    "total": 40,
+    "needed": 106,
+    "assigned": 40,
+    "idle": 0,
+    "shortfall": 66
+  },
+  "simulator_totals_20_crews_optimised": {
+    "horizon": "4w",
+    "crews_available": 20,
+    "crews_assigned": 20,
+    "baseline_cases": 638.13,
+    "simulated_cases": 592.65,
+    "cases_prevented": 45.45,
+    "beds_reduction": 13.43,
+    "saline_reduction": 108.37,
+    "cases_prevented_per_crew": 2.273,
+    "prevented_2w": 18.06,
+    "prevented_4w": 45.45
+  },
+  "city_brief": "Dhaka North",
+  "sample_wards": [
+    "DNCC_Ward_19",
+    "DSCC_Ward_04",
+    "NCC_Ward_03"
+  ]
+}

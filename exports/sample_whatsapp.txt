@@ -1,0 +1,73 @@
+Scenario: data up to week of 2024-08-12, 4w horizon, regional stock 60%, 40 spraying crews. Wards: DNCC_Ward_19, DSCC_Ward_04, NCC_Ward_03
+
+*Dengue dispatch: DNCC_Ward_19 (Dhaka North)*
+🔴 Risk: *Critical*  |  Forecast: *16.0 cases* in week of 2024-09-09
+Horizon: 4 weeks (data up to week of 2024-08-12)
+
+*Supplies (allocated / required, deficit)*
+• Saline bags: 33 / 38, deficit 5 ⚠️
+• Diagnostic kits: 16 / 19, deficit 3 ⚠️
+• Hospital beds: 4 / 5, deficit 1 ⚠️
+
+*Spraying crews:* 1 assigned (needed 3)
+*Hospital beds:* local capacity 4
+↪️ Transfer out: DNCC_Ward_05 (1)
+
+🚨 *CRITICAL SUPPLY DEFICIT*: demand cannot be fully met at current regional stock.
+
+*Action required:*
+1. Supply shortfall: request 5 saline bags and 3 diagnostic kits from the city reserve; prioritise severe cases.
+2. Arrange transfer of 1 patient(s) to: DNCC_Ward_05 (1).
+3. Deploy 1 spraying crew(s) to larvicide standing water and clear breeding sites.
+4. Crew shortfall: 2 more crew(s) requested; mobilise community clean-up.
+
+_Generated offline by the dengue early-warning system. Figures are model forecasts._
+
+----------
+
+*Dengue dispatch: DSCC_Ward_04 (Dhaka South)*
+🔴 Risk: *Critical*  |  Forecast: *15.2 cases* in week of 2024-09-09
+Horizon: 4 weeks (data up to week of 2024-08-12)
+
+*Supplies (allocated / required, deficit)*
+• Saline bags: 35 / 36, deficit 1 ⚠️
+• Diagnostic kits: 18 / 18, deficit 0
+• Hospital beds: 5 / 5, deficit 0
+
+*Spraying crews:* 1 assigned (needed 3)
+*Hospital beds:* local capacity 7
+↩️ Receiving from: DSCC_Ward_05 (1)
+
+🚨 *CRITICAL SUPPLY DEFICIT*: demand cannot be fully met at current regional stock.
+
+*Action required:*
+1. Supply shortfall: request 1 saline bags and 0 diagnostic kits from the city reserve; prioritise severe cases.
+2. Prepare 1 bed(s) for incoming patients from: DSCC_Ward_05 (1).
+3. Deploy 1 spraying crew(s) to larvicide standing water and clear breeding sites.
+4. Crew shortfall: 2 more crew(s) requested; mobilise community clean-up.
+
+_Generated offline by the dengue early-warning system. Figures are model forecasts._
+
+----------
+
+*Dengue dispatch: NCC_Ward_03 (Narayanganj)*
+🟡 Risk: *Medium*  |  Forecast: *8.8 cases* in week of 2024-09-09
+Horizon: 4 weeks (data up to week of 2024-08-12)
+
+*Supplies (allocated / required, deficit)*
+• Saline bags: 5 / 21, deficit 16 ⚠️
+• Diagnostic kits: 2 / 10, deficit 8 ⚠️
+• Hospital beds: 1 / 3, deficit 2 ⚠️
+
+*Spraying crews:* 0 assigned (needed 1)
+*Hospital beds:* local capacity 2
+↪️ Transfer out: NCC_Ward_01 (1)
+
+🚨 *CRITICAL SUPPLY DEFICIT*: demand cannot be fully met at current regional stock.
+
+*Action required:*
+1. Supply shortfall: request 16 saline bags and 8 diagnostic kits from the city reserve; prioritise severe cases.
+2. Arrange transfer of 1 patient(s) to: NCC_Ward_01 (1).
+3. Crew shortfall: 1 more crew(s) requested; mobilise community clean-up.
+
+_Generated offline by the dengue early-warning system. Figures are model forecasts._

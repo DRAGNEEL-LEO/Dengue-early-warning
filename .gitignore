@@ -3,3 +3,10 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 *.zip
+.pytest_cache/
+
+# Local secrets and personal data: never commit
+.streamlit/secrets.toml
+.env
+data/ward_contacts.csv
+exports/sms_send_log.csv

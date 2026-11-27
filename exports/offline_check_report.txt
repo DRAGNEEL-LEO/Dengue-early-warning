@@ -1,0 +1,11 @@
+OFFLINE KILL-SWITCH TEST: PASSED
+Loaded dataset (31320 rows, 60 wards, 5 cities), models and capacity table from local disk
+2025-06-09 2w: forecast, allocation (100/60/30% stock), routing (0 transfers), simulator (14.49 cases prevented), 60 dispatch notices: OK
+2025-06-09 4w: forecast, allocation (100/60/30% stock), routing (7 transfers), simulator (38.7 cases prevented), 60 dispatch notices: OK
+2024-08-12 2w: forecast, allocation (100/60/30% stock), routing (5 transfers), simulator (18.25 cases prevented), 60 dispatch notices: OK
+2024-08-12 4w: forecast, allocation (100/60/30% stock), routing (13 transfers), simulator (45.45 cases prevented), 60 dispatch notices: OK
+2025-12-29 2w: forecast, allocation (100/60/30% stock), routing (0 transfers), simulator (0.02 cases prevented), 60 dispatch notices: OK
+2025-12-29 4w: forecast, allocation (100/60/30% stock), routing (0 transfers), simulator (0.06 cases prevented), 60 dispatch notices: OK
+Status probe correctly reports: internet unavailable
+Blocked network attempts during run: 1 (all handled)
+Total time: 3.3 s

@@ -1,0 +1,61 @@
+city,ward_id,bed_capacity,source
+Chattogram,CCC_Ward_01,5,demo_assumption
+Chattogram,CCC_Ward_02,2,demo_assumption
+Chattogram,CCC_Ward_03,5,demo_assumption
+Chattogram,CCC_Ward_04,4,demo_assumption
+Chattogram,CCC_Ward_05,2,demo_assumption
+Chattogram,CCC_Ward_06,3,demo_assumption
+Chattogram,CCC_Ward_07,3,demo_assumption
+Chattogram,CCC_Ward_08,3,demo_assumption
+Chattogram,CCC_Ward_09,3,demo_assumption
+Chattogram,CCC_Ward_10,4,demo_assumption
+Dhaka North,DNCC_Ward_01,3,demo_assumption
+Dhaka North,DNCC_Ward_02,4,demo_assumption
+Dhaka North,DNCC_Ward_03,2,demo_assumption
+Dhaka North,DNCC_Ward_04,5,demo_assumption
+Dhaka North,DNCC_Ward_05,5,demo_assumption
+Dhaka North,DNCC_Ward_06,2,demo_assumption
+Dhaka North,DNCC_Ward_07,3,demo_assumption
+Dhaka North,DNCC_Ward_08,2,demo_assumption
+Dhaka North,DNCC_Ward_09,4,demo_assumption
+Dhaka North,DNCC_Ward_10,4,demo_assumption
+Dhaka North,DNCC_Ward_11,4,demo_assumption
+Dhaka North,DNCC_Ward_12,6,demo_assumption
+Dhaka North,DNCC_Ward_13,3,demo_assumption
+Dhaka North,DNCC_Ward_14,3,demo_assumption
+Dhaka North,DNCC_Ward_15,2,demo_assumption
+Dhaka North,DNCC_Ward_16,4,demo_assumption
+Dhaka North,DNCC_Ward_17,4,demo_assumption
+Dhaka North,DNCC_Ward_18,5,demo_assumption
+Dhaka North,DNCC_Ward_19,4,demo_assumption
+Dhaka North,DNCC_Ward_20,2,demo_assumption
+Dhaka South,DSCC_Ward_01,4,demo_assumption
+Dhaka South,DSCC_Ward_02,3,demo_assumption
+Dhaka South,DSCC_Ward_03,2,demo_assumption
+Dhaka South,DSCC_Ward_04,7,demo_assumption
+Dhaka South,DSCC_Ward_05,2,demo_assumption
+Dhaka South,DSCC_Ward_06,5,demo_assumption
+Dhaka South,DSCC_Ward_07,3,demo_assumption
+Dhaka South,DSCC_Ward_08,5,demo_assumption
+Dhaka South,DSCC_Ward_09,3,demo_assumption
+Dhaka South,DSCC_Ward_10,5,demo_assumption
+Dhaka South,DSCC_Ward_11,2,demo_assumption
+Dhaka South,DSCC_Ward_12,4,demo_assumption
+Dhaka South,DSCC_Ward_13,4,demo_assumption
+Dhaka South,DSCC_Ward_14,2,demo_assumption
+Dhaka South,DSCC_Ward_15,3,demo_assumption
+Dhaka South,DSCC_Ward_16,3,demo_assumption
+Dhaka South,DSCC_Ward_17,3,demo_assumption
+Dhaka South,DSCC_Ward_18,2,demo_assumption
+Dhaka South,DSCC_Ward_19,5,demo_assumption
+Dhaka South,DSCC_Ward_20,3,demo_assumption
+Gazipur,GCC_Ward_01,5,demo_assumption
+Gazipur,GCC_Ward_02,3,demo_assumption
+Gazipur,GCC_Ward_03,4,demo_assumption
+Gazipur,GCC_Ward_04,4,demo_assumption
+Gazipur,GCC_Ward_05,4,demo_assumption
+Narayanganj,NCC_Ward_01,6,demo_assumption
+Narayanganj,NCC_Ward_02,2,demo_assumption
+Narayanganj,NCC_Ward_03,2,demo_assumption
+Narayanganj,NCC_Ward_04,5,demo_assumption
+Narayanganj,NCC_Ward_05,3,demo_assumption

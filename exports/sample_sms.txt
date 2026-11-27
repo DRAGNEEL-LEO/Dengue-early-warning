@@ -1,0 +1,10 @@
+Scenario: data up to week of 2024-08-12, 4w horizon, regional stock 60%, 40 spraying crews. Wards: DNCC_Ward_19, DSCC_Ward_04, NCC_Ward_03
+
+[DNCC_Ward_19] (229 chars)
+DENGUE ALERT DNCC_Ward_19, Dhaka North: CRITICAL risk, ~16 cases wk of 2024-09-09 (4 weeks ahead). Alloc/Need: Saline 33/38, Kits 16/19, Beds 4/5. DEFICIT: Saline -5, Kits -3, Beds -1. Crews: 1. Transfer 1 pt to DNCC_Ward_05 (1).
+
+[DSCC_Ward_04] (190 chars)
+DENGUE ALERT DSCC_Ward_04, Dhaka South: CRITICAL risk, ~15 cases wk of 2024-09-09 (4 weeks ahead). Alloc/Need: Saline 35/36, Kits 18/18, Beds 5/5. DEFICIT: Saline -1. Crews: 1. Receive 1 pt.
+
+[NCC_Ward_03] (223 chars)
+DENGUE ALERT NCC_Ward_03, Narayanganj: MEDIUM risk, ~9 cases wk of 2024-09-09 (4 weeks ahead). Alloc/Need: Saline 5/21, Kits 2/10, Beds 1/3. DEFICIT: Saline -16, Kits -8, Beds -2. Crews: 0. Transfer 1 pt to NCC_Ward_01 (1).
