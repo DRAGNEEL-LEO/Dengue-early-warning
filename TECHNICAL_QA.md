@@ -17,7 +17,7 @@ R² 0.67 / 0.58 for 2 / 4 weeks.
 Rain creates standing water; mosquito eggs need roughly one to two weeks to become biting adults, and infected
 people then take several days to show symptoms. So the rain that matters for cases in two weeks fell several weeks
 earlier. Giving the model rain 0-4 weeks back plus a 4-week total lets it learn that delay instead of reacting to
-today's rain. The Ward Forecast page shows, for a given forecast, how much each lag pushes it up or down versus a
+today's rain. The Dengue Forecast page shows, for a given forecast, how much each lag pushes it up or down versus a
 typical week (an approximation, not a causal effect).
 
 ### 3. How is data leakage prevented?

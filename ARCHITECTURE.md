@@ -22,7 +22,7 @@ flowchart TD
     RA --> DG[src/dispatch_generator.py<br/>SMS, WhatsApp, HTML, PDF]
     HR --> DG
     DG --> X[exports/ and dashboard downloads]
-    RA --> UI[app.py: 8-page Streamlit dashboard]
+    RA --> UI[app.py + ui/: 9-page Streamlit dashboard]
     HR --> UI
     SIM --> UI
     DG --> UI
@@ -206,8 +206,9 @@ brief is the fallback). Everything is deterministic: same plan, same text.
 brief, the full 60-ward plan, the transfer list, city utilisation, the simulator ROI ranking and the scenario.
 
 **Optional SMS delivery.** `integrations/textbee.py` sends the SMS text through the TextBee gateway
-(`POST /api/v1/gateway/send-sms`, header `x-api-key`) using only the Python standard library. It is imported by
-`app.py` alone, runs only when an officer ticks a confirmation box and presses Send, validates numbers to E.164
+(`POST /api/v1/gateway/send-sms`, header `x-api-key`) using only the Python standard library. It is imported
+only through `ui/messaging.py` (the Dispatch page sends; System Status only reads whether a key is set), sends only
+when an officer ticks a confirmation box and presses Send, validates numbers to E.164
 (local Bangladeshi 01XXXXXXXXX numbers get +880), never raises, and never echoes the API key. A 2xx reply is shown as
 "accepted by TextBee"; delivery is confirmed in the TextBee dashboard. The key comes from `.streamlit/secrets.toml`
 or environment variables, and ward phone numbers from the git-ignored `data/ward_contacts.csv`.
@@ -256,5 +257,5 @@ one model call per horizon. No tokens, no rate limits, no per-request cost.
   verified operational data before real use.
 - Peaks are under-predicted; the Cautious basis is a buffer, not a fix.
 - Routing uses "most free beds in the same city", not travel distance, because no geography is available.
-- The rainfall scenario slider and driver bars on the Ward Forecast page are approximate, not causal.
+- The rainfall scenario slider and driver bars on the Dengue Forecast page are approximate, not causal.
 - One dataset, one chronological split; results show the method works on this data, not on real outbreaks.
