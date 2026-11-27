@@ -108,4 +108,4 @@ def test_load_config(monkeypatch):
 
 def test_core_modules_still_never_import_the_gateway():
     for f in (ROOT / "src").glob("*.py"):
-        assert "textbee" not in f.read_text().lower(), f.name
+        assert "textbee" not in f.read_text(encoding="utf-8").lower(), f.name

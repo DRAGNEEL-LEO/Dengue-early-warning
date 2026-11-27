@@ -52,7 +52,7 @@ def test_dashboard_shows_real_metrics_and_never_claims_delivery():
 
 
 def test_map_assets_are_local_and_attributed():
-    d = json.loads((ROOT / "data/geo/bd_districts.json").read_text())
+    d = json.loads((ROOT / "data/geo/bd_districts.json").read_text(encoding="utf-8"))
     names = {x["name"] for x in d["districts"] if x["focus"]}
     assert names == {"Dhaka", "Gazipur", "Narayanganj", "Chittagong"}
     assert "CC BY 3.0 IGO" in d["license"]

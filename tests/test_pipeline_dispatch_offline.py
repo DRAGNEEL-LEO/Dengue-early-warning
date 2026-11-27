@@ -123,7 +123,7 @@ def test_offline_core_execution():
 def test_no_network_libraries_in_core_modules():
     banned = ("requests", "urllib.request", "httpx", "openai", "anthropic", "aiohttp")
     for f in (ROOT / "src").glob("*.py"):
-        text = f.read_text()
+        text = f.read_text(encoding="utf-8")
         for b in banned:
             assert f"import {b}" not in text and f"from {b}" not in text, (f.name, b)
     assert np.isfinite(1.0)
