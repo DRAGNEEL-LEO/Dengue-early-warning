@@ -1,0 +1,6 @@
+city,wards,bed_demand,bed_capacity,deficit_before,transferred,unresolved_deficit,beds_used_after,utilization_before_pct,utilization_after_pct,headroom_after
+Chattogram,10,32,34,1,1,0,32,94.1,94.1,2
+Dhaka North,20,64,71,6,6,0,64,90.1,90.1,7
+Dhaka South,20,60,70,5,5,0,60,85.7,85.7,10
+Gazipur,5,18,20,1,1,0,18,90.0,90.0,2
+Narayanganj,5,14,18,2,2,0,14,77.8,77.8,4
