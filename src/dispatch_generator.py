@@ -112,7 +112,11 @@ def whatsapp_text(n):
 
 
 _CSS = """
-body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:24px;}
+:root{color-scheme:light}
+html,body{background:#ffffff !important;color:#111 !important}
+body{font-family:Arial,Helvetica,sans-serif;margin:24px;}
+.card,table,td,th,div,li,h1,h2{color:#111}
+.card{background:#ffffff}
 h1{font-size:20px;margin:0 0 4px 0} .sub{color:#555;font-size:12px;margin-bottom:14px}
 .card{border:1px solid #bbb;border-radius:6px;padding:12px 14px;margin:0 0 16px 0;page-break-inside:avoid}
 .card h2{font-size:16px;margin:0 0 6px 0} table{border-collapse:collapse;width:100%;font-size:12px;margin:6px 0}
@@ -149,7 +153,7 @@ def html_brief(notices, title="Commissioner dispatch brief"):
             f"(needed {n['crews_needed']}). <b>Beds:</b> {beds}</div>"
             f"<div style='font-size:12px;margin-top:6px'><b>Action required</b></div><ol>{acts}</ol></div>")
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-    return (f"<!doctype html><html><head><meta charset='utf-8'><title>{esc(title)}</title><style>{_CSS}</style>"
+    return (f"<!doctype html><html style='background:#fff'><head><meta charset='utf-8'><meta name='color-scheme' content='light'><title>{esc(title)}</title><style>{_CSS}</style>"
             f"</head><body><h1>{esc(title)}</h1><div class='sub'>Generated {stamp} locally by the dengue "
             f"early-warning system. Forecasts are model estimates; bed capacities are demo assumptions until "
             f"replaced with verified figures.</div>{''.join(cards)}</body></html>")
