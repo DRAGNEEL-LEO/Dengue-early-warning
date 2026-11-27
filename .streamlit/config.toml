@@ -1,13 +1,58 @@
 [theme]
 base = "dark"
-primaryColor = "#2dd4bf"
-backgroundColor = "#0e1117"
-secondaryBackgroundColor = "#1b2330"
-textColor = "#f1f5f9"
-font = "sans serif"
+primaryColor = "#F2A33A"
+backgroundColor = "#0D0D0E"
+secondaryBackgroundColor = "#1E1E22"
+textColor = "#ECE7DF"
+borderColor = "#2B2A2E"
+showWidgetBorder = true
+baseRadius = "6px"
+buttonRadius = "6px"
+font = "Inter"
+headingFont = "Inter"
+baseFontSize = 14
+linkColor = "#F2A33A"
+dataframeHeaderBackgroundColor = "#1E1E22"
+dataframeBorderColor = "#2B2A2E"
+redColor = "#E5484D"
+orangeColor = "#E8772E"
+yellowColor = "#E9C46A"
+greenColor = "#7FB069"
+blueColor = "#F2A33A"
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/inter-latin-300-normal.woff2"
+weight = 300
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/inter-latin-400-normal.woff2"
+weight = 400
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/inter-latin-500-normal.woff2"
+weight = 500
+
+[[theme.fontFaces]]
+family = "Inter"
+url = "app/static/fonts/inter-latin-600-normal.woff2"
+weight = 600
+
+[theme.sidebar]
+backgroundColor = "#0A0A0B"
+secondaryBackgroundColor = "#17171A"
+textColor = "#CFC8BD"
+primaryColor = "#F2A33A"
+borderColor = "#232226"
 
 [browser]
 gatherUsageStats = false
 
+[client]
+toolbarMode = "viewer"
+
 [server]
 headless = true
+enableStaticServing = true

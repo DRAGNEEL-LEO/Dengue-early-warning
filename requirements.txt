@@ -1,5 +1,5 @@
-streamlit>=1.50,<=1.67.0
-altair>=5.0         # charts (also installed with streamlit; imported directly by app.py)
+streamlit==1.67.0     # tested version; theme uses its sidebar theming and bundled-font support
+plotly>=5.20          # interactive charts (rendered offline by Streamlit's bundled plotly.js)
 pandas>=2.1
 numpy>=1.24
 scikit-learn>=1.3
