@@ -40,7 +40,7 @@ Other commands:
 
 ```bash
 python src/train.py            # retrain both models, refit resource rates, rebuild the demo capacity table
-python -m pytest -q            # 57 automated tests
+python -m pytest -q            # 65 automated tests
 python offline_check.py        # offline kill-switch test (exit code 0 = passed)
 python generate_exports.py     # regenerate the sample notices in exports/
 ```
@@ -179,7 +179,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 | `data/ward_contacts.example.csv` | Template for ward contact numbers; copy to the git-ignored `data/ward_contacts.csv` |
 | `offline_check.py` | Offline kill-switch test |
 | `generate_exports.py` | Writes the sample notices in `exports/` |
-| `tests/` | 57 pytest tests |
+| `tests/` | 65 pytest tests |
 | `exports/` | Sample SMS, WhatsApp, HTML/PDF brief, plan CSVs, offline report |
 | `models/` | `model_2w.pkl`, `model_4w.pkl`, `meta.json` |
 | `ARCHITECTURE.md`, `TECHNICAL_QA.md` | Design document and prepared answers for judges |
