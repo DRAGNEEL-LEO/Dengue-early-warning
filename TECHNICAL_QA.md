@@ -97,8 +97,8 @@ module imports an HTTP client (a test checks this); Streamlit usage statistics a
 incompatible they retrain locally. `python offline_check.py` disables socket connect and DNS for the process and
 runs forecasting, allocation at 100/60/30% stock, routing, the simulator and all four dispatch formats for three
 weeks and both horizons, verifying invariants (passes in about 3 seconds). The same test is a pytest case and a
-button on the System / Offline Status page; physically, the app keeps working with Wi-Fi off and the badge switches
-to OFFLINE.
+button on the System Status page; physically, the app keeps working with Wi-Fi off and the header badge switches
+to "Offline mode · all core functions available".
 
 ### 11. How are dispatch notices generated?
 

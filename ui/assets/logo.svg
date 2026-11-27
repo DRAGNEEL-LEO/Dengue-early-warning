@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260" height="48" viewBox="0 0 260 48">
+  <rect x="2" y="6" width="36" height="36" rx="8" fill="#13294B" stroke="#38BDF8" stroke-width="1.5"/>
+  <polyline points="8,26 14,26 17,18 21,33 25,22 28,26 32,26" fill="none" stroke="#38BDF8" stroke-width="2.4"
+            stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="48" y="23" font-family="Segoe UI, system-ui, Arial, sans-serif" font-size="15" font-weight="700"
+        fill="#FFFFFF">Dengue Early-Warning</text>
+  <text x="48" y="39" font-family="Segoe UI, system-ui, Arial, sans-serif" font-size="10.5" font-weight="500"
+        fill="#8AA0BD">&amp; Response System</text>
+</svg>
