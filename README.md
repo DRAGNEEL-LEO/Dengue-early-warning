@@ -40,7 +40,7 @@ Other commands:
 
 ```bash
 python src/train.py            # retrain both models, refit resource rates, rebuild the demo capacity table
-python -m pytest -q            # 43 automated tests
+python -m pytest -q            # 57 automated tests
 python offline_check.py        # offline kill-switch test (exit code 0 = passed)
 python generate_exports.py     # regenerate the sample notices in exports/
 ```
@@ -61,6 +61,31 @@ Two ways to demonstrate it:
    to "Internet: OFFLINE, all features still work".
 
 The hosted Streamlit Cloud URL obviously needs the internet to reach; offline operation applies to a local run.
+
+## SMS delivery with TextBee (optional)
+
+The Dispatch page can send each ward's SMS notice for real through [TextBee](https://textbee.dev), an SMS gateway
+that sends from an Android phone running the TextBee app. It is optional: without a key the app generates and exports
+notices exactly as before, and the offline guarantee is unchanged (the core never imports the gateway).
+
+1. In the TextBee dashboard, add your Android phone and copy the API key (and the device ID if you have several phones).
+2. Create `.streamlit/secrets.toml` in the project folder (it is git-ignored, never commit it):
+
+   ```toml
+   TEXTBEE_API_KEY = "paste-your-key-here"
+   TEXTBEE_DEVICE_ID = "optional-device-id"
+   ```
+
+   On Streamlit Cloud, paste the same lines into the app's **Settings → Secrets** instead.
+3. Copy `data/ward_contacts.example.csv` to `data/ward_contacts.csv` and fill in each ward's contact and mobile number
+   (01XXXXXXXXX or +8801XXXXXXXXX). This file is git-ignored because it holds personal phone numbers. You can also type
+   numbers directly in the Dispatch page.
+4. Restart the app, open **Dispatch → SMS**, check the numbers, tick the confirmation box and press **Send**.
+
+What the app reports: "Accepted by TextBee" means the gateway queued the message on the phone. Delivery is confirmed
+in the TextBee dashboard; the app never claims a message was delivered. If the internet is down or the key is wrong,
+the send fails with a clear message and nothing else is affected. Test with your own number first. Normal SMS charges
+and TextBee plan limits apply.
 
 ## Dashboard pages
 
@@ -129,7 +154,8 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
   configurable system assumptions in `src/config.py`, not official public-health policy.
 - Forecasts come from one dataset and one chronological split; they show the method works on this data, not that it
   is validated on real outbreaks. Dates inside the dataset are a replay; the newest week is a genuine forecast.
-- Notices are generated and exported; delivery through an SMS or WhatsApp gateway is not connected.
+- SMS can be sent through TextBee when configured (optional, needs internet); WhatsApp messages and briefs are
+  generated and exported, not sent.
 - Routing has no road-distance data, so "lowest burden" means most free beds in the same city.
 
 ## Repository layout
@@ -149,9 +175,11 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 | `src/dispatch_generator.py` | SMS, WhatsApp, HTML and PDF notices |
 | `src/pipeline.py` | End-to-end chain used everywhere |
 | `src/system_status.py` | Local component checks and internet probe |
+| `integrations/textbee.py` | Optional SMS sending through TextBee (only used when an officer confirms a send) |
+| `data/ward_contacts.example.csv` | Template for ward contact numbers; copy to the git-ignored `data/ward_contacts.csv` |
 | `offline_check.py` | Offline kill-switch test |
 | `generate_exports.py` | Writes the sample notices in `exports/` |
-| `tests/` | 43 pytest tests |
+| `tests/` | 57 pytest tests |
 | `exports/` | Sample SMS, WhatsApp, HTML/PDF brief, plan CSVs, offline report |
 | `models/` | `model_2w.pkl`, `model_4w.pkl`, `meta.json` |
 | `ARCHITECTURE.md`, `TECHNICAL_QA.md` | Design document and prepared answers for judges |
@@ -160,7 +188,8 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 
 - **AI assistants used:** Claude (Anthropic) for code, data analysis, tests and documentation in both phases. The
   team reviewed and directed the work and is responsible for it.
-- **External APIs at runtime:** none. No LLM, weather or messaging API is called when the app runs.
+- **External APIs at runtime:** none for the core system. No LLM or weather API is used. The only optional
+  external call is TextBee SMS sending, made only when an officer confirms a send on the Dispatch page.
 - **Other services:** Google Colab (Phase 1 development), GitHub (hosting), Streamlit Community Cloud (deployment).
 - **Libraries:** streamlit, pandas, numpy, scikit-learn, joblib, fpdf2 (PDF briefs, optional), pytest (tests).
 

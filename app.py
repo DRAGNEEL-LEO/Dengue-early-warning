@@ -4,6 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
 
 import altair as alt
 import pandas as pd
@@ -18,6 +19,7 @@ from intervention_simulator import default_params, optimal_deployment, simulate
 from pipeline import load_system, run_plan
 from predict import LABELS, TIERS, driver_impacts, predict_with_range, risk_tier
 from system_status import internet_reachable, local_checks
+from integrations import textbee
 
 st.set_page_config(page_title="Dengue early-warning and response", page_icon="🦟", layout="wide")
 
@@ -529,6 +531,95 @@ def page_simulator():
     st.download_button("Download simulation (CSV)", sim.to_csv(index=False), f"simulation_{date_str}_{sim_h}.csv")
 
 
+CONTACTS_FILE = ROOT / "data" / "ward_contacts.csv"            # local only, git-ignored (personal data)
+CONTACTS_EXAMPLE = ROOT / "data" / "ward_contacts.example.csv"
+
+
+def _secrets():
+    try:
+        st.secrets.to_dict()          # raises if no secrets file exists
+        return st.secrets
+    except Exception:
+        return None
+
+
+def textbee_config():
+    return textbee.load_config(_secrets())
+
+
+def load_contacts():
+    if "contacts" not in st.session_state:
+        src = CONTACTS_FILE if CONTACTS_FILE.exists() else CONTACTS_EXAMPLE
+        try:
+            c = pd.read_csv(src, dtype=str).fillna("")
+        except Exception:
+            c = pd.DataFrame(columns=["city", "ward_id", "contact_name", "phone"])
+        st.session_state.contacts = c
+    return st.session_state.contacts
+
+
+def sms_send_panel(notices, d_city):
+    """Optional real SMS delivery through TextBee. Nothing is sent without an explicit confirmation."""
+    st.markdown("#### Send by SMS (TextBee)")
+    cfg = textbee_config()
+    if cfg is None:
+        st.info("Sending is off: no TextBee API key is configured, so notices are generated and exported only. "
+                "To enable it, add `TEXTBEE_API_KEY` (and optionally `TEXTBEE_DEVICE_ID`) to "
+                "`.streamlit/secrets.toml` or Streamlit Cloud secrets. See README, *SMS delivery with TextBee*.")
+        return
+    st.caption(f"TextBee configured · device: {cfg['device_id'] or 'default device'} · gateway: {cfg['base_url']}. "
+               "Messages go out from the phone running the TextBee app; normal SMS charges and plan limits apply.")
+    contacts = load_contacts()
+    wards = [n["ward_id"] for n in notices]
+    cur = contacts.set_index("ward_id") if len(contacts) else pd.DataFrame()
+    ed = pd.DataFrame({"ward_id": wards,
+                       "contact_name": [cur["contact_name"].get(w, "") if len(cur) else "" for w in wards],
+                       "phone": [cur["phone"].get(w, "") if len(cur) else "" for w in wards]})
+    edited = st.data_editor(ed, hide_index=True, width="stretch", key=f"sms_contacts_{d_city}_{'-'.join(wards)}",
+                            disabled=["ward_id"], column_config={
+                                "ward_id": "Ward", "contact_name": "Ward commissioner / officer",
+                                "phone": st.column_config.TextColumn("Mobile number",
+                                                                     help="e.g. 01712345678 or +8801712345678")})
+    edited["number"] = edited["phone"].map(textbee.normalize_phone)
+    valid = edited[edited["number"].notna()]
+    invalid = edited[edited["phone"].str.strip().ne("") & edited["number"].isna()]
+    if len(invalid):
+        st.warning("Not a valid mobile number: " + ", ".join(invalid["ward_id"]))
+    if st.button("Save contacts for this session", help="Kept in memory. To keep them, copy data/ward_contacts.example.csv "
+                                                     "to data/ward_contacts.csv and fill it in (it is git-ignored)."):
+        upd = contacts.set_index("ward_id")
+        for r in edited.itertuples():
+            upd.loc[r.ward_id, ["contact_name", "phone"]] = [r.contact_name, r.phone]
+        st.session_state.contacts = upd.reset_index()
+        st.success("Contacts saved for this session.")
+    if valid.empty:
+        st.caption("Enter at least one valid mobile number to enable sending.")
+        return
+    batch = st.session_state.get("sms_batches", 0)          # new checkbox after every send: confirm again each time
+    confirm = st.checkbox(f"I confirm sending {len(valid)} real SMS to the numbers above.", key=f"sms_confirm_{batch}")
+    if st.button(f"Send {len(valid)} SMS now", type="primary", disabled=not confirm):
+        by_ward = {n["ward_id"]: n for n in notices}
+        results = []
+        with st.spinner("Sending through TextBee..."):
+            for r in valid.itertuples():
+                res = textbee.send_sms([r.number], sms_text(by_ward[r.ward_id]), cfg)
+                results.append({"time": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"), "ward_id": r.ward_id,
+                                "number": r.number, "result": "Accepted by TextBee" if res["ok"] else "Failed",
+                                "http_status": res["status"], "detail": res["detail"]})
+        log = pd.DataFrame(results)
+        st.session_state.sms_log = pd.concat([st.session_state.get("sms_log", pd.DataFrame()), log],
+                                             ignore_index=True)
+        n_ok = int((log["result"] != "Failed").sum())
+        (st.success if n_ok == len(log) else st.warning)(
+            f"{n_ok} of {len(log)} message(s) accepted by TextBee. 'Accepted' means queued on the phone; "
+            "confirm delivery in the TextBee dashboard.")
+        st.session_state.sms_batches = batch + 1
+    if "sms_log" in st.session_state and len(st.session_state.sms_log):
+        st.dataframe(st.session_state.sms_log, hide_index=True, width="stretch")
+        st.download_button("Download send log (CSV)", st.session_state.sms_log.to_csv(index=False),
+                           "sms_send_log.csv", "text/csv")
+
+
 def page_dispatch():
     header("Dispatch center")
     c1, c2 = st.columns([1, 2.2])
@@ -551,6 +642,8 @@ def page_dispatch():
                 st.text(txt)
         st.download_button("Download SMS (.txt)", "\n\n".join(sms_text(n) for n in notices),
                            f"sms_{d_city}_{target_week}.txt")
+        st.divider()
+        sms_send_panel(notices, d_city)
     with t2:
         cols = st.columns(2)
         for i, n in enumerate(notices):
@@ -573,8 +666,8 @@ def page_dispatch():
     st.divider()
     st.download_button("Download full 60-ward dispatch plan (CSV)", plan.to_csv(index=False),
                        f"dispatch_plan_{date_str}_{horizon}.csv", "text/csv")
-    st.caption("Built from local templates with the same numbers as the allocation and routing pages. Messages are "
-               "exported for officers to send; no SMS or WhatsApp gateway is connected.")
+    st.caption("Built from local templates with the same numbers as the allocation and routing pages. SMS can be "
+               "sent through TextBee when configured (SMS tab); WhatsApp and briefs are exported for officers to send.")
 
 
 def page_accuracy():
@@ -632,7 +725,12 @@ def page_status():
     a, b = st.columns([1.2, 1], gap="large")
     with a:
         st.markdown("**Local components**")
-        st.dataframe(pd.DataFrame(local_checks()), hide_index=True, width="stretch",
+        cfg = textbee_config()
+        checks = local_checks() + [{
+            "component": "SMS delivery (TextBee, optional)", "status": "CONFIGURED" if cfg else "OFF",
+            "detail": ("sends only when an officer confirms; needs internet" if cfg
+                       else "no API key set: notices are generated and exported only")}]
+        st.dataframe(pd.DataFrame(checks), hide_index=True, width="stretch",
                      column_config={"component": "Component", "status": "Status", "detail": "Detail"})
         st.caption(f"{rep['missing_values']} missing values, {rep['duplicate_rows']} duplicate rows. "
                    f"Models trained with scikit-learn {meta['sklearn_version']}.")

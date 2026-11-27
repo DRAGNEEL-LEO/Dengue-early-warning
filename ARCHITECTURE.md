@@ -205,10 +205,18 @@ brief is the fallback). Everything is deterministic: same plan, same text.
 `generate_exports.py` writes `exports/`: sample SMS and WhatsApp notices for contrasting wards, a city HTML and PDF
 brief, the full 60-ward plan, the transfer list, city utilisation, the simulator ROI ranking and the scenario.
 
+**Optional SMS delivery.** `integrations/textbee.py` sends the SMS text through the TextBee gateway
+(`POST /api/v1/gateway/send-sms`, header `x-api-key`) using only the Python standard library. It is imported by
+`app.py` alone, runs only when an officer ticks a confirmation box and presses Send, validates numbers to E.164
+(local Bangladeshi 01XXXXXXXXX numbers get +880), never raises, and never echoes the API key. A 2xx reply is shown as
+"accepted by TextBee"; delivery is confirmed in the TextBee dashboard. The key comes from `.streamlit/secrets.toml`
+or environment variables, and ward phone numbers from the git-ignored `data/ward_contacts.csv`.
+
 ## 9. Offline architecture
 
 - All inputs are local files: dataset, models, `meta.json`, capacity table; templates are Python code.
-- No module imports an HTTP or LLM client (enforced by a test that scans `src/`).
+- No core module imports an HTTP or LLM client (enforced by a test that scans `src/`). The optional TextBee sender
+  lives outside `src/` and is never needed for forecasting, allocation, routing, simulation or notice generation.
 - Models retrain locally if incompatible; training needs no network.
 - Streamlit's usage statistics are disabled in `.streamlit/config.toml`; charts are rendered by Streamlit's bundled
   front-end.

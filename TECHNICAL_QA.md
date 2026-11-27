@@ -107,7 +107,9 @@ to OFFLINE.
 actions with fixed rules. The same notice renders as SMS (compact), WhatsApp (bold markup, emoji risk marker),
 printable HTML and PDF. A test checks for all 60 wards that every number in the notice equals the plan and that the
 texts contain ward, city, risk, allocations, deficit flags and transfer instructions. Samples are in `exports/`.
-Sending through a gateway is not implemented.
+Optionally, the SMS notices can be sent through TextBee (`integrations/textbee.py`): only after an officer
+confirms, reported as "accepted by TextBee" rather than delivered, and isolated from the core so offline
+operation is unaffected. WhatsApp sending is not implemented.
 
 ### 12. What are the dataset and model limitations?
 
