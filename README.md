@@ -40,7 +40,7 @@ Other commands:
 
 ```bash
 python src/train.py            # retrain both models, refit resource rates, rebuild the demo capacity table
-python -m pytest -q            # 49 automated tests
+python -m pytest -q            # 43 automated tests
 python offline_check.py        # offline kill-switch test (exit code 0 = passed)
 python generate_exports.py     # regenerate the sample notices in exports/
 ```
@@ -56,35 +56,34 @@ Two ways to demonstrate it:
 1. **Automated kill-switch:** `python offline_check.py` replaces Python's socket connect and DNS functions with
    ones that raise, then runs forecasting (both horizons), allocation at 100/60/30% stock, routing, the simulator and
    all four dispatch formats for three different weeks, checking every invariant. The report is written to
-   `exports/offline_check_report.txt`. The same test is a button on the **System Status** page and a pytest case.
+   `exports/offline_check_report.txt`. The same test is a button on the **System / Offline Status** page and a pytest case.
 2. **Physical test:** start `streamlit run app.py`, switch off Wi-Fi, and use every page. The sidebar badge changes
    to "Internet: OFFLINE, all features still work".
 
 The hosted Streamlit Cloud URL obviously needs the internet to reach; offline operation applies to a local run.
 
-## Dashboard
+## Dashboard pages
 
-A light workspace with a dark navy sidebar, grouped navigation, white cards and one colour language for risk
-(Low green, Medium amber, High orange, Critical red). Every page sits under the same header (today's date, selected
-city, system and offline status) and the same scenario bar: forecast week, horizon, city, available regional stock,
-spraying crews, and *More* (demand basis, scarcity policy, priority weight). Settings carry across pages.
+Navigation sits in the top bar, in three groups; the sidebar holds only the scenario controls (forecast week,
+horizon, stock %, crews) with demand basis, policy, priority weight and city filter under *Advanced settings*. Every
+page opens with a row of chips summarising the active scenario.
 
-| Group | Page | What it shows |
-|---|---|---|
-| Overview | Dashboard | KPI cards, alerts (critical wards, bed capacity, supply deficits), case treemap (city → ward, size = forecast cases, colour = risk), risk distribution by city, weekly forecast trend, highest-risk wards |
-| Prediction | Ward Forecast | 2- and 4-week forecast with range and risk, ward profile, reported vs predicted history, driver chart, rainfall scenario (labelled *Scenario*), recent weather |
-| Prediction | Risk Intelligence | Clickable risk matrix (population density vs forecast cases, bubble = bed demand, colour = risk), ward detail panel, forecast distribution, Critical/High ranking, all-ward CSV |
-| Prediction | Model Performance | MAE, RMSE, R² for 2 vs 4 weeks against persistence and mean baselines, risk-tier agreement and confusion matrix, actual vs predicted, resource rates, limitations |
-| Response management | Resource Allocation | Demand, available stock, allocated and shortage kept separate; before/after by city; ward distribution by priority; priority table; CSV |
-| Response management | Hospital Routing | Bed demand vs capacity, overflow wards, transfer flow diagram and list, city utilisation, ward capacity chart, editable capacity table |
-| Response management | Intervention Simulator | Ward scope, vector-control crews (larvicide / fogging), editable effectiveness, before/after, cases prevented, bed and saline savings, ROI ranking |
-| Communication | Dispatch Center | Alert preview cards, SMS and WhatsApp templates, printable HTML report, PDF brief, plan CSV; always labelled *Generated · not sent* |
-| System | System Status | Application, models, dataset, offline capability, modules, local files, dependencies, offline self-test |
+- **Plan → Overview**: deficit alert, four headline numbers (projected cases, High/Critical wards, wards short of
+  supplies, patients without a bed) and tabs for supplies, cities and the top 10 priority wards.
+- **Plan → Ward forecast** (Phase 1): 2- and 4-week forecast with risk tier and range, rainfall scenario slider,
+  driver chart, recent weather and the all-ward ranking with CSV download.
+- **Respond → Allocation**: supply cards, a supply selector, a priority-ordered chart of allocated vs shortfall
+  (top 15 / 30 / all), a ward table with fill bars and a "only wards with a shortfall" filter, CSV export.
+- **Respond → Bed routing**: city bed pools with utilisation bars, transfers, ward deficits and headroom (wards with
+  activity by default), and the editable capacity table.
+- **Respond → Simulator**: set-up, crew deployment editor (allocation engine, optimised or empty start) and results
+  side by side, then the ROI ranking.
+- **Respond → Dispatch**: SMS and WhatsApp cards, printable brief preview, downloads (TXT, HTML, PDF, CSV).
+- **System → Accuracy**: MAE, RMSE, R² against persistence, tier accuracy, actual vs predicted, resource rates.
+- **System → Offline status**: local component checks, internet probe and the one-click offline self-test.
 
-Labels used throughout: *Model forecast*, *Scenario*, *Simulated estimate*, *Demo assumption*, *Generated · not sent*.
-Neither the treemap nor the risk matrix is a map: the dataset has no ward coordinates or boundaries, so wards
-are shown by city and by their actual attributes instead of by location. The default week, 2024-08-12, is a held-out test week with a mix of risk tiers and
-some bed overflow, which makes every module visible.
+The default week, 2024-08-12, is a held-out test week chosen because it has a mix of risk tiers and some bed
+overflow, which makes every module visible.
 
 ## Dataset
 
@@ -137,10 +136,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 
 | Path | Purpose |
 |---|---|
-| `app.py` | Streamlit entry point: theme, grouped navigation, shared header and scenario bar |
-| `ui/theme.py`, `ui/components.py` | Design system (colours, CSS, Plotly template) and reusable cards, alerts, tables, charts, treemap and risk matrix |
-| `ui/state.py` | Cached data, scenario controls and the shared context every page reads |
-| `ui/views/*.py` | One file per page (9 pages); they only call functions in `src/` |
+| `app.py` | Streamlit dashboard (8 pages) |
 | `src/config.py` | Paths and every configurable assumption |
 | `src/data_processing.py` | Load and validate the dataset |
 | `src/features.py` | Per-ward lag and rolling features, 2- and 4-week targets (Phase 1) |
@@ -155,7 +151,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 | `src/system_status.py` | Local component checks and internet probe |
 | `offline_check.py` | Offline kill-switch test |
 | `generate_exports.py` | Writes the sample notices in `exports/` |
-| `tests/` | 49 pytest tests (logic, offline run and every UI page under several scenarios) |
+| `tests/` | 43 pytest tests |
 | `exports/` | Sample SMS, WhatsApp, HTML/PDF brief, plan CSVs, offline report |
 | `models/` | `model_2w.pkl`, `model_4w.pkl`, `meta.json` |
 | `ARCHITECTURE.md`, `TECHNICAL_QA.md` | Design document and prepared answers for judges |
@@ -166,7 +162,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
   team reviewed and directed the work and is responsible for it.
 - **External APIs at runtime:** none. No LLM, weather or messaging API is called when the app runs.
 - **Other services:** Google Colab (Phase 1 development), GitHub (hosting), Streamlit Community Cloud (deployment).
-- **Libraries:** streamlit, plotly (charts), pandas, numpy, scikit-learn, joblib, fpdf2 (PDF briefs, optional), pytest (tests).
+- **Libraries:** streamlit, pandas, numpy, scikit-learn, joblib, fpdf2 (PDF briefs, optional), pytest (tests).
 
 ## Team
 

@@ -217,24 +217,13 @@ brief, the full 60-ward plan, the transfer list, city utilisation, the simulator
 - `offline_check.py` disables socket connect and DNS for the whole process, runs the full chain for three weeks,
   two horizons and three stock levels, checks all invariants, and writes `exports/offline_check_report.txt`.
 
-## 10. User interface
-
-`app.py` sets the theme, the grouped sidebar navigation (`st.navigation`) and calls `ui.state.build_context()`,
-which renders the shared header and scenario bar, runs `run_plan()` once per setting (cached) and publishes one
-context object. Each page in `ui/views/` reads that context and calls existing `src/` functions only
-(`forecast_wards`, `predict_with_range`, `driver_impacts`, `simulate`, `optimal_deployment`, `notices_for`, ...);
-no business rule is re-implemented in the UI. `ui/components.py` holds the reusable pieces (KPI cards, alerts,
-labels, styled tables, Plotly helpers, the case treemap and the risk matrix) and `ui/theme.py` the colour tokens, CSS and a
-shared Plotly template. Fonts use the system stack and charts use Streamlit's bundled plotly.js, so the interface
-makes no external requests (checked by loading every page with all non-local requests blocked).
-
-## 11. Compute and cost
+## 10. Compute and cost
 
 Models load once (`st.cache_resource`); features are built once; each plan is cached per control setting
 (`st.cache_data`), so moving a slider recomputes allocation for 60 wards in milliseconds. A full 60-ward forecast is
 one model call per horizon. No tokens, no rate limits, no per-request cost.
 
-## 12. Known limitations
+## 11. Known limitations
 
 - Bed capacity and intervention effectiveness are assumptions (sections 6 and 7) and must be replaced with
   verified operational data before real use.
