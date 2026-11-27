@@ -1,12 +1,15 @@
 """Model loading, risk tiers, prediction ranges and driver explanations."""
 import json
+import warnings
 
 import joblib
 import numpy as np
 import pandas as pd
+import sklearn
 
+from config import HORIZONS, MODEL_DIR
 from features import FEATURES
-from train import MODEL_DIR, HORIZONS, train_all
+from train import train_all
 
 LABELS = {
     "population_density_sqkm": "Population density",
@@ -27,19 +30,27 @@ LABELS = {
 TIERS = ("Low", "Medium", "High", "Critical")
 
 
-def load_models():
-    """Load saved models. If they are missing or were saved by a different
-    scikit-learn version, retrain once (about 20 seconds) and load again."""
-    try:
+def _read():
+    meta = json.loads((MODEL_DIR / "meta.json").read_text())
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         models = {h: joblib.load(MODEL_DIR / f"model_{h}.pkl") for h in HORIZONS}
-        meta = json.loads((MODEL_DIR / "meta.json").read_text())
+    return models, meta
+
+
+def load_models():
+    """Load saved models from local disk (no network). If they are missing, were saved by a different
+    scikit-learn version, or predate the Phase 2 metadata, retrain once (about 30 seconds) and load again."""
+    try:
+        models, meta = _read()
+        if meta.get("sklearn_version") != sklearn.__version__ or "resource_rates" not in meta:
+            raise RuntimeError("stale model artifacts")
         probe = pd.DataFrame([meta["baseline"]])[FEATURES]
         for m in models.values():
             m.predict(probe)
     except Exception:
         train_all(verbose=False)
-        models = {h: joblib.load(MODEL_DIR / f"model_{h}.pkl") for h in HORIZONS}
-        meta = json.loads((MODEL_DIR / "meta.json").read_text())
+        models, meta = _read()
     return models, meta
 
 
@@ -56,7 +67,9 @@ def risk_tier(cases, tiers):
 def predict_with_range(model, row):
     """Prediction for one row plus a 10th-90th percentile range across the trees."""
     X = row[FEATURES].to_numpy(dtype=float)
-    per_tree = np.array([t.predict(X)[0] for t in model.estimators_])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")      # trees were fitted with column names; plain arrays are fine
+        per_tree = np.array([t.predict(X)[0] for t in model.estimators_])
     return float(per_tree.mean()), float(np.percentile(per_tree, 10)), float(np.percentile(per_tree, 90))
 
 
@@ -71,3 +84,28 @@ def driver_impacts(model, row, baseline):
         variants.append(v)
     P = model.predict(pd.concat(variants, ignore_index=True))
     return pd.Series(P[0] - P[1:], index=FEATURES)
+
+
+def forecast_wards(models, meta, df, date, basis="expected"):
+    """2-week and 4-week forecasts for every ward at one origin week (one model call per horizon).
+
+    basis: "expected" = mean of the trees; "cautious" = 90th percentile across trees, a planning buffer
+    because the model under-predicts the largest peaks.
+    """
+    rows = df[df["date"] == pd.Timestamp(date)].dropna(subset=FEATURES)
+    out = rows[["city", "ward_id", "population_density_sqkm"]].copy().reset_index(drop=True)
+    X = rows[FEATURES].to_numpy(dtype=float)
+    for h in HORIZONS:
+        m = models[h]
+        if basis == "cautious":
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                per_tree = np.stack([t.predict(X) for t in m.estimators_])
+            pred = np.percentile(per_tree, 90, axis=0)
+        elif basis == "expected":
+            pred = m.predict(rows[FEATURES])
+        else:
+            raise ValueError("basis must be 'expected' or 'cautious'")
+        out[f"cases_{h}"] = np.round(np.clip(pred, 0, None), 2)
+        out[f"risk_{h}"] = [risk_tier(p, meta["tiers"]) for p in out[f"cases_{h}"]]
+    return out

@@ -8,12 +8,40 @@
     "2w": {
       "mae": 1.119,
       "rmse": 2.225,
-      "baseline_mae": 3.135
+      "r2": 0.672,
+      "baseline_mae": 3.135,
+      "persistence_mae": 1.691,
+      "persistence_rmse": 3.328,
+      "persistence_r2": 0.266,
+      "train_rows": 24780,
+      "test_rows": 6180,
+      "train_origin_weeks": [
+        "2016-02-01",
+        "2023-12-25"
+      ],
+      "test_origin_weeks": [
+        "2024-01-01",
+        "2025-12-15"
+      ]
     },
     "4w": {
       "mae": 1.324,
       "rmse": 2.538,
-      "baseline_mae": 3.143
+      "r2": 0.579,
+      "baseline_mae": 3.143,
+      "persistence_mae": 2.136,
+      "persistence_rmse": 3.924,
+      "persistence_r2": -0.007,
+      "train_rows": 24780,
+      "test_rows": 6060,
+      "train_origin_weeks": [
+        "2016-02-01",
+        "2023-12-25"
+      ],
+      "test_origin_weeks": [
+        "2024-01-01",
+        "2025-12-01"
+      ]
     }
   },
   "split_date": "2024-01-01",
@@ -32,5 +60,54 @@
     "humidity_mean_2w": 68.17749999999998,
     "humidity_mean_4w": 67.74875,
     "month": 7.0
-  }
+  },
+  "features": [
+    "population_density_sqkm",
+    "water_logging_risk_index",
+    "sanitation_score",
+    "rain_lag_0w",
+    "rain_lag_1w",
+    "rain_lag_2w",
+    "rain_lag_3w",
+    "rain_lag_4w",
+    "rain_sum_4w",
+    "temp_mean_2w",
+    "temp_mean_4w",
+    "humidity_mean_2w",
+    "humidity_mean_4w",
+    "month"
+  ],
+  "resource_rates": {
+    "saline_bags_needed": 2.38415,
+    "diagnostic_kits_needed": 1.15819,
+    "hospital_beds_required": 0.29552
+  },
+  "resource_rate_eval_2024_2025": {
+    "saline_bags_needed": {
+      "exact_match": 1.0,
+      "mae": 0.0
+    },
+    "diagnostic_kits_needed": {
+      "exact_match": 0.9997,
+      "mae": 0.0003
+    },
+    "hospital_beds_required": {
+      "exact_match": 1.0,
+      "mae": 0.0
+    }
+  },
+  "resource_mapping_deterministic": true,
+  "dataset": {
+    "file": "bangladesh_dengue_onsite.csv",
+    "rows": 31320,
+    "columns": 15,
+    "cities": 5,
+    "wards": 60,
+    "first_week": "2016-01-04",
+    "last_week": "2025-12-29",
+    "weeks": 522,
+    "missing_values": 0,
+    "duplicate_rows": 0
+  },
+  "sklearn_version": "1.9.1"
 }
