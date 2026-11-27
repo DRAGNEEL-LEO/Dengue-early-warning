@@ -85,6 +85,19 @@ def test_dispatch_notice_completeness(system):
     assert pdf is None or pdf[:4] == b"%PDF"
 
 
+def test_single_sms_fits_one_segment_for_every_ward(system):
+    from pipeline import run_plan
+    from dispatch_generator import GSM_BASIC, notices_for, sms_text_short
+    for week in ("2024-08-12", "2025-06-23"):
+        for h in ("2w", "4w"):
+            r = run_plan(system, week, h, 30, 10)
+            for n in notices_for(r["plan"], r["transfers"]):
+                t = sms_text_short(n)
+                assert len(t) <= 160 and set(t) <= GSM_BASIC, t
+                assert n["ward_id"] in t and n["risk"].upper() in t
+                assert f"Saline {n['supply']['Saline']['allocated']}/{n['supply']['Saline']['required']}" in t
+
+
 def test_dispatch_rejects_incomplete_row():
     from dispatch_generator import build_notice
     with pytest.raises(ValueError):

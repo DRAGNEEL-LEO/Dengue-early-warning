@@ -12,7 +12,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from config import CREWS_NEEDED_BY_TIER, HORIZON_NAME, HORIZON_WEEKS, PRIORITY_WEIGHTS, RESOURCE_LABEL, RESOURCES
-from dispatch_generator import html_brief, notices_for, pdf_brief, sms_text, whatsapp_text
+from dispatch_generator import html_brief, notices_for, pdf_brief, sms_text, sms_text_short, whatsapp_text
 from features import FEATURES
 from hospital_routing import CAPACITY_NOTE
 from intervention_simulator import default_params, optimal_deployment, simulate
@@ -567,8 +567,19 @@ def sms_send_panel(notices, d_city):
                 "To enable it, add `TEXTBEE_API_KEY` (and optionally `TEXTBEE_DEVICE_ID`) to "
                 "`.streamlit/secrets.toml` or Streamlit Cloud secrets. See README, *SMS delivery with TextBee*.")
         return
-    st.caption(f"TextBee configured · device: {cfg['device_id'] or 'default device'} · gateway: {cfg['base_url']}. "
+    st.caption(f"TextBee configured · device: {cfg['device_id'] or 'default device'} · "
+               f"SIM: {cfg.get('sim_subscription_id') or 'phone default'} · gateway: {cfg['base_url']}. "
                "Messages go out from the phone running the TextBee app; normal SMS charges and plan limits apply.")
+    fmt = st.radio("Message format", ["single", "full"], horizontal=True, key="sms_fmt",
+                   format_func={"single": "Single SMS (max 160 characters, recommended)",
+                                "full": "Full notice (usually 2 SMS)"}.get,
+                   help="Some phones and carriers fail on multi-part SMS sent by an app (a 'modem' error in "
+                        "TextBee). The single format always fits in one plain SMS.")
+    make = sms_text_short if fmt == "single" else sms_text
+    with st.expander("Preview the message that will be sent"):
+        for n in notices:
+            t = make(n)
+            st.text(f"{n['ward_id']} ({len(t)} chars, {-(-len(t) // 153) if len(t) > 160 else 1} SMS):\n{t}")
     contacts = load_contacts()
     wards = [n["ward_id"] for n in notices]
     cur = contacts.set_index("ward_id") if len(contacts) else pd.DataFrame()
@@ -602,7 +613,7 @@ def sms_send_panel(notices, d_city):
         results = []
         with st.spinner("Sending through TextBee..."):
             for r in valid.itertuples():
-                res = textbee.send_sms([r.number], sms_text(by_ward[r.ward_id]), cfg)
+                res = textbee.send_sms([r.number], make(by_ward[r.ward_id]), cfg)
                 results.append({"time": pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S"), "ward_id": r.ward_id,
                                 "number": r.number, "result": "Accepted by TextBee" if res["ok"] else "Failed",
                                 "http_status": res["status"], "detail": res["detail"]})

@@ -16,6 +16,7 @@ the phone), never as "delivered". Delivery can be confirmed in the TextBee dashb
 Configuration (never commit the key):
     TEXTBEE_API_KEY    required   from the TextBee dashboard
     TEXTBEE_DEVICE_ID  optional   which phone to send from; default device otherwise
+    TEXTBEE_SIM_SUBSCRIPTION_ID optional  which SIM on a dual-SIM phone (field simSubscriptionId)
     TEXTBEE_BASE_URL   optional   default https://api.textbee.dev (change for a self-hosted gateway)
 Read from environment variables or Streamlit secrets (.streamlit/secrets.toml, git-ignored).
 """
@@ -46,6 +47,7 @@ def load_config(secrets=None):
     if not key:
         return None
     return {"api_key": key, "device_id": get("TEXTBEE_DEVICE_ID"),
+            "sim_subscription_id": get("TEXTBEE_SIM_SUBSCRIPTION_ID"),
             "base_url": (get("TEXTBEE_BASE_URL") or DEFAULT_BASE_URL).rstrip("/")}
 
 
@@ -86,6 +88,9 @@ def send_sms(recipients, message, config, timeout=15, opener=None):
     body = {"recipients": nums, "message": message}
     if config.get("device_id"):
         body["deviceId"] = config["device_id"]
+    sim = config.get("sim_subscription_id")
+    if sim:
+        body["simSubscriptionId"] = int(sim) if str(sim).isdigit() else sim
     req = urllib.request.Request(
         config["base_url"] + SEND_PATH, data=json.dumps(body).encode("utf-8"), method="POST",
         headers={"x-api-key": config["api_key"], "Content-Type": "application/json",

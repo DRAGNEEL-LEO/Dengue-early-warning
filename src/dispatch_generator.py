@@ -86,6 +86,44 @@ def sms_text(n):
     return " ".join(parts)
 
 
+SMS_SINGLE_LIMIT = 160
+GSM_BASIC = set("@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !\"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "ÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà")
+
+
+def sms_text_short(n, limit=SMS_SINGLE_LIMIT):
+    """Single-segment SMS: at most 160 characters from the basic GSM alphabet, so phones send it as one plain
+    message (multi-part or escaped characters are a common cause of modem send failures). Optional details are
+    dropped, least important first, until it fits."""
+    s = n["supply"]
+    try:
+        from datetime import datetime
+        wk = datetime.strptime(n["target"], "%Y-%m-%d").strftime("%d %b")
+    except (ValueError, TypeError):
+        wk = str(n["target"])
+    hz = n["horizon"].replace(" weeks", "w").replace(" week", "w")
+    head = f"DENGUE {n['ward_id']} {n['city']}: {n['risk'].upper()} risk, est {n['cases']:.0f} cases wk {wk} ({hz})."
+    supplies = " " + " ".join(f"{k} {v['allocated']}/{v['required']}" for k, v in s.items()) + "."
+    crews = f" Crews {n['crews_assigned']}."
+    optional = []                                            # most important first
+    if n["unresolved_beds"]:
+        optional.append(f" {n['unresolved_beds']} pt no bed-ESCALATE.")
+    if n["transferred_out"]:
+        optional.append(f" Send {n['transferred_out']} pt to {n['sent_to'][0].split(' ')[0]}"
+                        + (" +more." if len(n["sent_to"]) > 1 else "."))
+    if n["deficit_alert"]:
+        optional.append(" SHORTAGE.")
+    if n["transferred_in"]:
+        optional.append(f" Receive {n['transferred_in']} pt.")
+    text = head + supplies + crews + "".join(optional)
+    while len(text) > limit and optional:
+        optional.pop()
+        text = head + supplies + crews + "".join(optional)
+    if len(text) > limit:
+        text = (head + supplies)[:limit]
+    return "".join(c if c in GSM_BASIC else " " for c in text)
+
+
 def whatsapp_text(n):
     s = n["supply"]
     icon = {"Low": "🟢", "Medium": "🟡", "High": "🟠", "Critical": "🔴"}.get(n["risk"], "")

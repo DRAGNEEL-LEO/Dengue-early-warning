@@ -74,6 +74,7 @@ notices exactly as before, and the offline guarantee is unchanged (the core neve
    ```toml
    TEXTBEE_API_KEY = "paste-your-key-here"
    TEXTBEE_DEVICE_ID = "optional-device-id"
+   TEXTBEE_SIM_SUBSCRIPTION_ID = "optional, dual-SIM phones only"
    ```
 
    On Streamlit Cloud, paste the same lines into the app's **Settings → Secrets** instead.
@@ -86,6 +87,18 @@ What the app reports: "Accepted by TextBee" means the gateway queued the message
 in the TextBee dashboard; the app never claims a message was delivered. If the internet is down or the key is wrong,
 the send fails with a clear message and nothing else is affected. Test with your own number first. Normal SMS charges
 and TextBee plan limits apply.
+
+**Troubleshooting a "modem" / generic send error in TextBee.** That error is reported by the phone after TextBee
+accepted the request, so the app-to-gateway link worked. Check, in this order:
+
+1. Use **Single SMS (max 160 characters)** in the Dispatch page (the default). The full notice is usually two SMS
+   parts, which some phones and carriers refuse when an app sends them.
+2. Send a normal SMS from the phone's own Messages app with the same SIM, to rule out balance, signal or an
+   inactive SIM.
+3. Dual-SIM phone: set `TEXTBEE_SIM_SUBSCRIPTION_ID` (or choose the SIM in the TextBee app) so the SIM with SMS
+   credit is used.
+4. In Android settings, allow the TextBee app to send SMS, turn off battery optimisation for it and keep it open.
+5. Android limits how many SMS an app can send in a short time; send a few at a time.
 
 ## Dashboard pages
 

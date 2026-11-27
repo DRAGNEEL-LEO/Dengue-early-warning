@@ -48,6 +48,16 @@ def test_sends_correct_request_and_reports_accepted():
     assert seen["body"] == {"recipients": ["+8801712345678"], "message": "Dengue alert", "deviceId": "dev123"}
 
 
+def test_sim_subscription_id_is_sent_when_configured():
+    seen = {}
+
+    def opener(req, timeout):
+        seen["body"] = json.loads(req.data)
+        return FakeResp(201)
+    textbee.send_sms(["+8801712345678"], "x", {**CFG, "sim_subscription_id": "2"}, opener=opener)
+    assert seen["body"]["simSubscriptionId"] == 2
+
+
 def test_http_error_is_reported_without_leaking_key():
     def opener(req, timeout):
         raise urllib.error.HTTPError(req.full_url, 401, "Unauthorized", {},
@@ -85,12 +95,13 @@ def test_normalize_phone(raw, expected):
 
 
 def test_load_config(monkeypatch):
-    for k in ("TEXTBEE_API_KEY", "TEXTBEE_DEVICE_ID", "TEXTBEE_BASE_URL"):
+    for k in ("TEXTBEE_API_KEY", "TEXTBEE_DEVICE_ID", "TEXTBEE_BASE_URL", "TEXTBEE_SIM_SUBSCRIPTION_ID"):
         monkeypatch.delenv(k, raising=False)
     assert textbee.load_config() is None
     monkeypatch.setenv("TEXTBEE_API_KEY", "abc")
     cfg = textbee.load_config()
-    assert cfg == {"api_key": "abc", "device_id": None, "base_url": "https://api.textbee.dev"}
+    assert cfg == {"api_key": "abc", "device_id": None, "sim_subscription_id": None,
+                   "base_url": "https://api.textbee.dev"}
     cfg = textbee.load_config({"TEXTBEE_API_KEY": "from_secrets", "TEXTBEE_BASE_URL": "http://192.168.1.5:3001/"})
     assert cfg["api_key"] == "from_secrets" and cfg["base_url"] == "http://192.168.1.5:3001"
 
