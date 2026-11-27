@@ -64,22 +64,26 @@ The hosted Streamlit Cloud URL obviously needs the internet to reach; offline op
 
 ## Dashboard pages
 
-1. **Executive Overview**: projected cases, High/Critical wards, wards in deficit, crews, transfers, unplaced patients,
-   available vs required supplies and a city comparison.
-2. **Ward Forecast** (Phase 1): 2- and 4-week forecast with risk tier and range, driver chart, rainfall scenario
-   slider, recent weather and the all-ward ranking with CSV download.
-3. **Resource Allocation**: stock, crew and policy controls (sidebar), per-ward required / allocated / deficit,
-   deficit highlighting and CSV export.
-4. **Hospital Overflow Routing**: city utilisation, transfers, ward deficits and headroom, editable capacity table.
-5. **Vector Control Simulator**: crew deployment editor, editable effectiveness assumptions, baseline vs simulated
-   cases, bed and saline reductions, ROI ranking, optimiser.
-6. **Dispatch Center**: SMS, WhatsApp and printable brief preview with downloads (TXT, HTML, PDF, CSV).
-7. **Model Accuracy**: MAE, RMSE, R², persistence baseline, tier accuracy, resource-rate check, actual vs predicted.
-8. **System / Offline Status**: local component checks, internet probe and the one-click offline self-test.
+Navigation sits in the top bar, in three groups; the sidebar holds only the scenario controls (forecast week,
+horizon, stock %, crews) with demand basis, policy, priority weight and city filter under *Advanced settings*. Every
+page opens with a row of chips summarising the active scenario.
 
-The sidebar controls (forecast week, horizon, demand basis, stock %, crews, policy, priority weight, city filter)
-apply to every page and recompute instantly. The default week, 2024-08-12, is a held-out test week chosen because it
-has a mix of risk tiers and some bed overflow, which makes every module visible.
+- **Plan → Overview**: deficit alert, four headline numbers (projected cases, High/Critical wards, wards short of
+  supplies, patients without a bed) and tabs for supplies, cities and the top 10 priority wards.
+- **Plan → Ward forecast** (Phase 1): 2- and 4-week forecast with risk tier and range, rainfall scenario slider,
+  driver chart, recent weather and the all-ward ranking with CSV download.
+- **Respond → Allocation**: supply cards, a supply selector, a priority-ordered chart of allocated vs shortfall
+  (top 15 / 30 / all), a ward table with fill bars and a "only wards with a shortfall" filter, CSV export.
+- **Respond → Bed routing**: city bed pools with utilisation bars, transfers, ward deficits and headroom (wards with
+  activity by default), and the editable capacity table.
+- **Respond → Simulator**: set-up, crew deployment editor (allocation engine, optimised or empty start) and results
+  side by side, then the ROI ranking.
+- **Respond → Dispatch**: SMS and WhatsApp cards, printable brief preview, downloads (TXT, HTML, PDF, CSV).
+- **System → Accuracy**: MAE, RMSE, R² against persistence, tier accuracy, actual vs predicted, resource rates.
+- **System → Offline status**: local component checks, internet probe and the one-click offline self-test.
+
+The default week, 2024-08-12, is a held-out test week chosen because it has a mix of risk tiers and some bed
+overflow, which makes every module visible.
 
 ## Dataset
 
