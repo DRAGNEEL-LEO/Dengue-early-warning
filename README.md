@@ -40,7 +40,7 @@ Other commands:
 
 ```bash
 python src/train.py            # retrain both models, refit resource rates, rebuild the demo capacity table
-python -m pytest -q            # 65 automated tests
+python -m pytest -q            # 74 automated tests
 python offline_check.py        # offline kill-switch test (exit code 0 = passed)
 python generate_exports.py     # regenerate the sample notices in exports/
 ```
@@ -56,9 +56,9 @@ Two ways to demonstrate it:
 1. **Automated kill-switch:** `python offline_check.py` replaces Python's socket connect and DNS functions with
    ones that raise, then runs forecasting (both horizons), allocation at 100/60/30% stock, routing, the simulator and
    all four dispatch formats for three different weeks, checking every invariant. The report is written to
-   `exports/offline_check_report.txt`. The same test is a button on the **System / Offline Status** page and a pytest case.
+   `exports/offline_check_report.txt`. The same test is a button on the **System Status** page and a pytest case.
 2. **Physical test:** start `streamlit run app.py`, switch off Wi-Fi, and use every page. The sidebar badge changes
-   to "Internet: OFFLINE, all features still work".
+   to "Offline · all core functions available".
 
 The hosted Streamlit Cloud URL obviously needs the internet to reach; offline operation applies to a local run.
 
@@ -100,25 +100,31 @@ accepted the request, so the app-to-gateway link worked. Check, in this order:
 4. In Android settings, allow the TextBee app to send SMS, turn off battery optimisation for it and keep it open.
 5. Android limits how many SMS an app can send in a short time; send a few at a time.
 
-## Dashboard pages
+## Dashboard
 
-Navigation sits in the top bar, in three groups; the sidebar holds only the scenario controls (forecast week,
-horizon, stock %, crews) with demand basis, policy, priority weight and city filter under *Advanced settings*. Every
-page opens with a row of chips summarising the active scenario.
+A dark disease-surveillance interface: charcoal panels, amber and orange accents, circular gauges, glowing trend
+lines and a district map of the project area. The sidebar holds the grouped page links and the scenario controls
+(forecast week, horizon, city, regional stock %, spraying crews; demand basis, scarcity policy and priority weight
+under *Advanced*). Settings carry across pages.
 
-- **Plan → Overview**: deficit alert, four headline numbers (projected cases, High/Critical wards, wards short of
-  supplies, patients without a bed) and tabs for supplies, cities and the top 10 priority wards.
-- **Plan → Ward forecast** (Phase 1): 2- and 4-week forecast with risk tier and range, rainfall scenario slider,
-  driver chart, recent weather and the all-ward ranking with CSV download.
-- **Respond → Allocation**: supply cards, a supply selector, a priority-ordered chart of allocated vs shortfall
-  (top 15 / 30 / all), a ward table with fill bars and a "only wards with a shortfall" filter, CSV export.
-- **Respond → Bed routing**: city bed pools with utilisation bars, transfers, ward deficits and headroom (wards with
-  activity by default), and the editable capacity table.
-- **Respond → Simulator**: set-up, crew deployment editor (allocation engine, optimised or empty start) and results
-  side by side, then the ROI ranking.
-- **Respond → Dispatch**: SMS and WhatsApp cards, printable brief preview, downloads (TXT, HTML, PDF, CSV).
-- **System → Accuracy**: MAE, RMSE, R² against persistence, tier accuracy, actual vs predicted, resource rates.
-- **System → Offline status**: local component checks, internet probe and the one-click offline self-test.
+| Group | Page | What it shows |
+|---|---|---|
+| Surveillance | Disease Surveillance | Ward risk map, key-metric gauges (predicted cases, critical wards, high-risk wards, with change vs the forecast made a week earlier), dengue trends (forecast vs reported), trends by city, geographic spread, resource status, critical alerts |
+| Prediction | Dengue Forecast | 2- and 4-week forecast with range and risk, ward profile, reported vs predicted history, feature drivers, rainfall scenario (labelled *Scenario*), recent weather |
+| Prediction | Geographic Risk | Large clickable map; the selected city's wards as ranked risk indicators; ward detail panel; forecast distribution; Critical/High ranking; CSV |
+| Prediction | Model Performance | MAE, RMSE, R² for 2 vs 4 weeks against persistence and mean baselines, risk-tier agreement and confusion matrix, actual vs predicted, resource rates, limitations |
+| Response | Resource Allocation | Estimated demand, available stock, allocated and shortage kept separate; before/after by city; ward distribution by priority; priority table; CSV |
+| Response | Hospital Routing | Bed demand vs capacity, overflow wards, transfer flow and list (same city only), ward capacity chart, editable capacity table |
+| Response | Intervention Simulator | Vector-control crews (larvicide / fogging), editable effectiveness, before/after, cases prevented, bed and saline savings, ROI ranking (labelled *Simulated estimate*) |
+| Communication | Dispatch Center | Alert preview, SMS and WhatsApp templates, printable HTML report, PDF brief, optional TextBee SMS sending |
+| System | System Status | Application, models, dataset, offline capability, modules, dependencies, offline self-test |
+
+**About the map.** It draws real district boundaries (Bangladesh Bureau of Statistics and UN OCHA, via
+geoBoundaries, CC BY 3.0 IGO) bundled in `data/geo/`, so it works offline. The dataset has no ward coordinates or
+boundaries, so each city corporation is one marker at the approximate location of its office (checked to lie inside
+its district) and wards are listed beside the map rather than placed on it. Adding an authoritative
+`data/geo/ward_points.csv` (ward_id, lat, lon) plots the wards too. The Inter font (SIL OFL) is bundled in
+`static/fonts/`, so the interface makes no external requests.
 
 The default week, 2024-08-12, is a held-out test week chosen because it has a mix of risk tiers and some bed
 overflow, which makes every module visible.
@@ -175,7 +181,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 
 | Path | Purpose |
 |---|---|
-| `app.py` | Streamlit dashboard (8 pages) |
+| `app.py` | Streamlit entry point: theme, grouped sidebar navigation, shared scenario controls |
 | `src/config.py` | Paths and every configurable assumption |
 | `src/data_processing.py` | Load and validate the dataset |
 | `src/features.py` | Per-ward lag and rolling features, 2- and 4-week targets (Phase 1) |
@@ -190,9 +196,12 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 | `src/system_status.py` | Local component checks and internet probe |
 | `integrations/textbee.py` | Optional SMS sending through TextBee (only used when an officer confirms a send) |
 | `data/ward_contacts.example.csv` | Template for ward contact numbers; copy to the git-ignored `data/ward_contacts.csv` |
+| `ui/` | Interface: `theme.py` (design tokens, CSS, chart template), `components.py` (gauges, panels, rows, tables), `geo.py` (offline district map), `messaging.py` (TextBee panel), `state.py` (scenario controls), `views/` (one file per page) |
+| `data/geo/` | District boundaries (CC BY 3.0 IGO) and approximate city-corporation marker locations, with attribution |
+| `static/fonts/` | Inter font files (SIL Open Font License) |
 | `offline_check.py` | Offline kill-switch test |
 | `generate_exports.py` | Writes the sample notices in `exports/` |
-| `tests/` | 65 pytest tests |
+| `tests/` | 74 pytest tests |
 | `exports/` | Sample SMS, WhatsApp, HTML/PDF brief, plan CSVs, offline report |
 | `models/` | `model_2w.pkl`, `model_4w.pkl`, `meta.json` |
 | `ARCHITECTURE.md`, `TECHNICAL_QA.md` | Design document and prepared answers for judges |
@@ -204,7 +213,8 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 - **External APIs at runtime:** none for the core system. No LLM or weather API is used. The only optional
   external call is TextBee SMS sending, made only when an officer confirms a send on the Dispatch page.
 - **Other services:** Google Colab (Phase 1 development), GitHub (hosting), Streamlit Community Cloud (deployment).
-- **Libraries:** streamlit, pandas, numpy, scikit-learn, joblib, fpdf2 (PDF briefs, optional), pytest (tests).
+- **Libraries:** streamlit, plotly (charts), pandas, numpy, scikit-learn, joblib, fpdf2 (PDF briefs, optional), pytest (tests).
+- **Bundled data and fonts:** district boundaries from BBS / UN OCHA via geoBoundaries (CC BY 3.0 IGO); Inter font (SIL OFL).
 
 ## Team
 

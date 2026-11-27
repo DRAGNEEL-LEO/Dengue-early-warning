@@ -225,13 +225,32 @@ or environment variables, and ward phone numbers from the git-ignored `data/ward
 - `offline_check.py` disables socket connect and DNS for the whole process, runs the full chain for three weeks,
   two horizons and three stock levels, checks all invariants, and writes `exports/offline_check_report.txt`.
 
-## 10. Compute and cost
+## 10. User interface
+
+`app.py` sets the page configuration, injects the design system (`ui/theme.py`), builds grouped sidebar navigation
+(`st.navigation`) and calls `ui.state.build_context()`, which renders the sidebar scenario controls, runs
+`run_plan()` once per setting (cached) and publishes one context object. Each page in `ui/views/` reads that
+context and calls existing `src/` functions only (`forecast_wards`, `predict_with_range`, `driver_impacts`,
+`simulate`, `optimal_deployment`, `notices_for`, ...); no business rule is re-implemented in the interface.
+
+- `ui/components.py`: SVG circular gauges, panel titles, glowing line helper, bar rows, KPI cards, alerts, tables.
+- `ui/geo.py`: offline map. District boundaries (BBS / UN OCHA via geoBoundaries, CC BY 3.0 IGO) are bundled in
+  `data/geo/bd_districts.json` and drawn as Plotly shapes (no map tiles, so nothing is downloaded). One marker per city
+  corporation sits at the approximate office location in `data/geo/city_markers.csv`, each verified to fall inside
+  its district; marker size follows forecast cases and colour the worst ward tier. The dataset has no ward
+  coordinates, so wards are not placed on the map; an optional `data/geo/ward_points.csv` is plotted if supplied.
+- Gauge scales are real: predicted cases against the highest weekly total in the training years, and critical or
+  high-risk wards out of the wards in scope. Changes compare with the forecast made one week earlier.
+- The Inter font is served from `static/fonts/` through Streamlit's theme font settings; the interface was checked
+  with every non-local request blocked (charts, gauges, map and font all render, zero external requests).
+
+## 11. Compute and cost
 
 Models load once (`st.cache_resource`); features are built once; each plan is cached per control setting
 (`st.cache_data`), so moving a slider recomputes allocation for 60 wards in milliseconds. A full 60-ward forecast is
 one model call per horizon. No tokens, no rate limits, no per-request cost.
 
-## 11. Known limitations
+## 12. Known limitations
 
 - Bed capacity and intervention effectiveness are assumptions (sections 6 and 7) and must be replaced with
   verified operational data before real use.
