@@ -8,4 +8,4 @@ Loaded dataset (31320 rows, 60 wards, 5 cities), models and capacity table from 
 2025-12-29 4w: forecast, allocation (100/60/30% stock), routing (0 transfers), simulator (0.06 cases prevented), 60 dispatch notices: OK
 Status probe correctly reports: internet unavailable
 Blocked network attempts during run: 1 (all handled)
-Total time: 3.1 s
+Total time: 2.9 s
