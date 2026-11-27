@@ -71,9 +71,9 @@ spraying crews, and *More* (demand basis, scarcity policy, priority weight). Set
 
 | Group | Page | What it shows |
 |---|---|---|
-| Overview | Dashboard | KPI cards, alerts (critical wards, bed capacity, supply deficits), ward risk grid, risk distribution by city, weekly forecast trend, highest-risk wards |
+| Overview | Dashboard | KPI cards, alerts (critical wards, bed capacity, supply deficits), case treemap (city → ward, size = forecast cases, colour = risk), risk distribution by city, weekly forecast trend, highest-risk wards |
 | Prediction | Ward Forecast | 2- and 4-week forecast with range and risk, ward profile, reported vs predicted history, driver chart, rainfall scenario (labelled *Scenario*), recent weather |
-| Prediction | Risk Intelligence | Clickable ward risk grid, ward detail panel, forecast distribution, Critical/High ranking, all-ward CSV |
+| Prediction | Risk Intelligence | Clickable risk matrix (population density vs forecast cases, bubble = bed demand, colour = risk), ward detail panel, forecast distribution, Critical/High ranking, all-ward CSV |
 | Prediction | Model Performance | MAE, RMSE, R² for 2 vs 4 weeks against persistence and mean baselines, risk-tier agreement and confusion matrix, actual vs predicted, resource rates, limitations |
 | Response management | Resource Allocation | Demand, available stock, allocated and shortage kept separate; before/after by city; ward distribution by priority; priority table; CSV |
 | Response management | Hospital Routing | Bed demand vs capacity, overflow wards, transfer flow diagram and list, city utilisation, ward capacity chart, editable capacity table |
@@ -82,8 +82,8 @@ spraying crews, and *More* (demand basis, scarcity policy, priority weight). Set
 | System | System Status | Application, models, dataset, offline capability, modules, local files, dependencies, offline self-test |
 
 Labels used throughout: *Model forecast*, *Scenario*, *Simulated estimate*, *Demo assumption*, *Generated · not sent*.
-The ward risk grid is **schematic, not a map**: the dataset has no ward coordinates or boundaries, so tiles are
-grouped by city in ward-ID order. The default week, 2024-08-12, is a held-out test week with a mix of risk tiers and
+Neither the treemap nor the risk matrix is a map: the dataset has no ward coordinates or boundaries, so wards
+are shown by city and by their actual attributes instead of by location. The default week, 2024-08-12, is a held-out test week with a mix of risk tiers and
 some bed overflow, which makes every module visible.
 
 ## Dataset
@@ -138,7 +138,7 @@ and in 99.97% of rows for kits, so planning error comes almost entirely from the
 | Path | Purpose |
 |---|---|
 | `app.py` | Streamlit entry point: theme, grouped navigation, shared header and scenario bar |
-| `ui/theme.py`, `ui/components.py` | Design system (colours, CSS, Plotly template) and reusable cards, alerts, tables, charts, ward grid |
+| `ui/theme.py`, `ui/components.py` | Design system (colours, CSS, Plotly template) and reusable cards, alerts, tables, charts, treemap and risk matrix |
 | `ui/state.py` | Cached data, scenario controls and the shared context every page reads |
 | `ui/views/*.py` | One file per page (9 pages); they only call functions in `src/` |
 | `src/config.py` | Paths and every configurable assumption |

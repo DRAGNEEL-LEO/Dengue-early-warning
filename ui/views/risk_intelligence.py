@@ -13,7 +13,7 @@ fc = c.forecast.copy()
 plan = c.plan.set_index("ward_id")
 
 C.page_header("Risk intelligence",
-              f"Where risk is concentrated {c.hname} ahead (week of {c.target_week}). Click a tile to open the ward.",
+              f"Where risk is concentrated {c.hname} ahead (week of {c.target_week}). Click a bubble to open the ward.",
               tags=["real"])
 
 f1, f2 = st.columns([2, 1])
@@ -33,15 +33,17 @@ if st.session_state.get("ri_ward") not in set(fcv["ward_id"]):
 left, right = st.columns([1.7, 1], gap="medium")
 with left:
     with C.card():
-        st.markdown(f"**Ward risk grid** · {C.tag('demo', 'Schematic · not geographic')}", unsafe_allow_html=True)
-        ev = C.chart(C.ward_grid(fcv, f"cases_{h}", f"risk_{h}", selected=st.session_state["ri_ward"],
-                                 width_px=780, max_units=17),
-                     key="ri_grid", select=True)
+        st.markdown("**Risk matrix** · click a bubble to open the ward")
+        beds = c.plan.set_index("ward_id")["hospital_beds_required_required"]
+        mdf = fcv.assign(beds=fcv["ward_id"].map(beds).fillna(0))
+        ev = C.chart(C.risk_matrix(mdf, f"cases_{h}", f"risk_{h}", c.meta["tiers"], size_col="beds",
+                                   selected=st.session_state["ri_ward"]), key="ri_matrix", select=True)
         pts = (ev or {}).get("selection", {}).get("points", []) if ev else []
         if pts and pts[0].get("customdata") and pts[0]["customdata"] != st.session_state["ri_ward"]:
             st.session_state["ri_ward"] = pts[0]["customdata"]
             st.rerun()
-        st.caption("Tiles are grouped by city in ward-ID order; the dataset has no coordinates, so this is not a map.")
+        st.caption("Across: population density. Up: forecast cases. Bubble size: bed demand. Wards towards the top "
+                   "right are both high-risk and densely populated, the wards the allocation engine prioritises.")
 
 with right:
     with C.card():

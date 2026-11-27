@@ -65,12 +65,11 @@ else:
 
 # ---------------------------------------------------------------- grid + distribution
 with C.card():
-    st.markdown(f"**Ward risk grid** · {c.hname} ahead · {C.tag('demo', 'Schematic · not geographic')}",
+    st.markdown(f"**Where the cases are** · {c.hname} ahead · tile size = forecast cases, colour = risk tier",
                 unsafe_allow_html=True)
-    C.chart(C.ward_grid(fc, f"cases_{c.horizon}", f"risk_{c.horizon}", width_px=1250), key="dash_grid")
-    st.caption("One tile per ward, grouped by city in ward-ID order. The dataset has no ward coordinates or "
-               "boundaries, so this is not a map. Top line = ward number; bottom line = forecast cases. "
-               "Open Risk Intelligence to click into a ward.")
+    C.chart(C.risk_treemap(fc, f"cases_{c.horizon}", f"risk_{c.horizon}"), key="dash_treemap")
+    st.caption("Each city box holds its wards; bigger tiles mean more forecast cases. This is a proportional view, "
+               "not a map (the dataset has no ward coordinates). Open Risk Intelligence to explore a ward.")
 
 left, right = st.columns([1.65, 1], gap="medium")
 with right:

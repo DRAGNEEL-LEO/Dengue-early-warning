@@ -141,58 +141,80 @@ def hbar(df, y, series, colors, title=None, height=None, xtitle=None, stacked=Tr
     return fig
 
 
-def ward_grid(fc, value_col, risk_col, selected=None, title=None, width_px=1280, max_units=None):
-    """Schematic ward grid: one square tile per ward, grouped by city in ward-ID order, coloured by risk tier.
-    City blocks wrap onto a new row when they would exceed max_units. NOT geographic: the dataset has no
-    coordinates or boundaries."""
-    cities = list(dict.fromkeys(fc.sort_values(["city", "ward_id"])["city"]))
-    ncol = 5 if len(cities) > 1 else 10
-    gap = 0.9
-    # lay out city blocks, wrapping rows of blocks
-    blocks, x_off, y_off, row_h, widest = [], 0.0, 0.0, 0, 0.0
-    for city in cities:
-        n = int((fc["city"] == city).sum())
-        cols = min(ncol, n)
-        rows = -(-n // cols)
-        if max_units and x_off > 0 and x_off + cols > max_units:
-            y_off -= row_h + 1.0
-            x_off, row_h = 0.0, 0
-        blocks.append((city, x_off, y_off, cols))
-        widest = max(widest, x_off + cols)
-        x_off += cols + gap
-        row_h = max(row_h, rows)
-    shapes, xs, ys, texts, hover, custom, annots = [], [], [], [], [], [], []
-    for city, bx, by, cols in blocks:
-        g = fc[fc["city"] == city].sort_values("ward_id").reset_index(drop=True)
-        for i, r in g.iterrows():
-            cx, cy = bx + (i % cols), by - (i // cols)
-            tier = r[risk_col]
-            line = dict(color=T.TEXT, width=3) if r["ward_id"] == selected else dict(color="#FFFFFF", width=2)
-            shapes.append(dict(type="rect", x0=cx + 0.03, x1=cx + 0.97, y0=cy - 0.97, y1=cy - 0.03,
-                               fillcolor=T.RISK[tier], line=line, layer="below"))
-            xs.append(cx + 0.5)
-            ys.append(cy - 0.5)
-            texts.append(f"<b>{r['ward_id'].split('_')[-1]}</b><br>{r[value_col]:.0f}")
-            hover.append(f"<b>{r['ward_id']}</b> ({city})<br>Risk: {tier}<br>Forecast: {r[value_col]:.1f} cases")
-            custom.append(r["ward_id"])
-        annots.append(dict(x=bx, y=by + 0.05, text=f"<b>{city}</b>", showarrow=False, xanchor="left",
-                           yanchor="bottom", font=dict(size=12.5, color=T.MUTED)))
-    unit = width_px / max(widest, 1)
-    fig = go.Figure(go.Scatter(
-        x=xs, y=ys, mode="markers+text", text=texts, customdata=custom, hovertext=hover, hoverinfo="text",
-        textfont=dict(color="#FFFFFF", size=11 if unit > 38 else 9.5),
-        marker=dict(size=max(18, int(unit * 0.8)), color="rgba(0,0,0,0.01)", symbol="square"), showlegend=False))
+def risk_treemap(fc, value_col, risk_col, height=430):
+    """Treemap: city -> ward. Tile area = forecast cases, colour = risk tier. Shows where cases concentrate.
+    Not geographic: the dataset has no coordinates or boundaries."""
+    d = fc.sort_values(["city", "ward_id"])
+    total = float(d[value_col].clip(lower=0).sum())
+    # tiny floor so near-zero wards stay visible; labels always show the real forecast
+    size = d[value_col].clip(lower=0).clip(lower=max(total, 1) * 0.002)
+    ids, labels, parents, values, colors, text, hover, fcol = [], [], [], [], [], [], [], []
+    for city, g in d.groupby("city", sort=True):
+        sz = size[g.index]
+        ids.append(city); labels.append(city); parents.append(""); values.append(float(sz.sum()))
+        colors.append("#F1F5F9")
+        fcol.append(T.TEXT)
+        n_hc = int(g[risk_col].isin(["High", "Critical"]).sum())
+        text.append(f"{g[value_col].sum():.0f} cases · {n_hc} High/Critical")
+        hover.append(f"<b>{city}</b><br>{g[value_col].sum():.0f} forecast cases<br>{len(g)} wards, {n_hc} High/Critical")
+    for i, r in d.iterrows():
+        ids.append(r["ward_id"]); labels.append(r["ward_id"].replace("_Ward_", " ")); parents.append(r["city"])
+        values.append(float(size[i])); colors.append(T.RISK[r[risk_col]]); fcol.append("#FFFFFF")
+        text.append(f"{r[value_col]:.1f}")
+        hover.append(f"<b>{r['ward_id']}</b> ({r['city']})<br>Risk: {r[risk_col]}<br>Forecast: {r[value_col]:.1f} cases")
+    fig = go.Figure(go.Treemap(
+        ids=ids, labels=labels, parents=parents, values=values, branchvalues="total", text=text,
+        hovertext=hover, hoverinfo="text", textinfo="label+text", sort=True,
+        marker=dict(colors=colors, line=dict(color="#FFFFFF", width=2), pad=dict(t=24, l=3, r=3, b=3)),
+        textfont=dict(family=T.FONT, size=12, color=fcol),
+        outsidetextfont=dict(family=T.FONT, color=T.TEXT, size=13),
+        pathbar=dict(visible=False), tiling=dict(packing="squarify")))
     for tier in T.TIERS:
         fig.add_scatter(x=[None], y=[None], mode="markers", name=tier,
                         marker=dict(size=12, symbol="square", color=T.RISK[tier]))
-    y_min = min(by - (-(-int((fc["city"] == c).sum()) // cols)) for c, bx, by, cols in blocks)
-    span_y = 0.75 - y_min
-    fig.update_layout(shapes=shapes, annotations=annots, title=title, dragmode=False,
-                      height=int(span_y * unit + 70),
-                      xaxis=dict(visible=False, range=[-0.05, widest + 0.05], fixedrange=True),
-                      yaxis=dict(visible=False, range=[y_min - 0.05, 0.75], scaleanchor="x", scaleratio=1,
-                                 fixedrange=True),
-                      legend=dict(orientation="h", y=-0.01, yanchor="top", x=0), margin=dict(l=4, r=4, t=8, b=34))
+    fig.update_layout(height=height, margin=dict(l=2, r=2, t=6, b=36),
+                      xaxis=dict(visible=False), yaxis=dict(visible=False),
+                      legend=dict(orientation="h", y=-0.02, yanchor="top", x=0))
+    return fig
+
+
+def risk_matrix(df, value_col, risk_col, tiers, size_col=None, selected=None, height=430):
+    """Bubble chart: population density (x) vs forecast cases (y), bubble = bed demand, colour = risk tier.
+    Top-right = high risk AND dense, which is what the allocation priority favours."""
+    fig = go.Figure()
+    sz = df[size_col] if size_col else pd.Series(1, index=df.index)
+    smax = max(float(sz.max()), 1.0)
+    for tier in T.TIERS:
+        g = df[df[risk_col] == tier]
+        if g.empty:
+            fig.add_scatter(x=[None], y=[None], mode="markers", name=tier,
+                            marker=dict(size=12, color=T.RISK[tier]))
+            continue
+        s = sz[g.index]
+        fig.add_scatter(
+            x=g["population_density_sqkm"], y=g[value_col], mode="markers", name=tier, customdata=g["ward_id"],
+            marker=dict(size=10 + 26 * (s / smax) ** 0.5, color=T.RISK[tier], opacity=0.85,
+                        line=dict(color="#FFFFFF", width=1.5)),
+            text=[f"<b>{w}</b> ({c})<br>Risk: {tier}<br>Forecast: {v:.1f} cases<br>Density: {d:,.0f}/km²"
+                  + (f"<br>Bed demand: {b:.0f}" if size_col else "")
+                  for w, c, v, d, b in zip(g["ward_id"], g["city"], g[value_col], g["population_density_sqkm"], s)],
+            hoverinfo="text")
+    if selected is not None and selected in set(df["ward_id"]):
+        r = df[df["ward_id"] == selected].iloc[0]
+        right_half = r["population_density_sqkm"] > df["population_density_sqkm"].median()
+        fig.add_scatter(x=[r["population_density_sqkm"]], y=[r[value_col]], mode="markers+text",
+                        text=[f"{selected}   " if right_half else f"   {selected}"],
+                        textposition="middle left" if right_half else "middle right", showlegend=False,
+                        hoverinfo="skip",
+                        textfont=dict(size=12, color=T.TEXT),
+                        marker=dict(size=40, color="rgba(0,0,0,0)", line=dict(color=T.TEXT, width=2.5)))
+    for tier in ("High", "Critical"):
+        fig.add_hline(y=tiers[tier], line=dict(color=T.RISK[tier], width=1, dash="dot"),
+                      annotation_text=f"{tier} ≥ {tiers[tier]:g}", annotation_position="top left",
+                      annotation_font=dict(size=11, color=T.RISK[tier]))
+    fig.update_layout(height=height, xaxis_title="Population density (people per km²)",
+                      yaxis_title="Forecast cases per week", hovermode="closest", dragmode=False,
+                      xaxis=dict(tickformat=",.0f"))
     return fig
 
 

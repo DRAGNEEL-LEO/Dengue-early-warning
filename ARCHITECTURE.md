@@ -224,7 +224,7 @@ which renders the shared header and scenario bar, runs `run_plan()` once per set
 context object. Each page in `ui/views/` reads that context and calls existing `src/` functions only
 (`forecast_wards`, `predict_with_range`, `driver_impacts`, `simulate`, `optimal_deployment`, `notices_for`, ...);
 no business rule is re-implemented in the UI. `ui/components.py` holds the reusable pieces (KPI cards, alerts,
-labels, styled tables, Plotly helpers, the schematic ward grid) and `ui/theme.py` the colour tokens, CSS and a
+labels, styled tables, Plotly helpers, the case treemap and the risk matrix) and `ui/theme.py` the colour tokens, CSS and a
 shared Plotly template. Fonts use the system stack and charts use Streamlit's bundled plotly.js, so the interface
 makes no external requests (checked by loading every page with all non-local requests blocked).
 
